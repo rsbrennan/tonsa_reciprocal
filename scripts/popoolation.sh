@@ -1,6 +1,6 @@
 # need separate pileup for each
 
-for i in $(ls ~/reciprocal_t/data/aligned | cut -f 1 -d '.'| grep 'HHAA'); do
+for i in $(ls ~/reciprocal_t/data/aligned | cut -f 1 -d '.'| grep 'AAHH'); do
 
     echo "Status: starting $i"
 
