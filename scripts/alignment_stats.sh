@@ -3,6 +3,8 @@ cd ~/reciprocal_t/data/aligned
 for i in $(ls *.bam | cut -f -1 -d "." | uniq )
 
 do {
+
+first=$(samtools view ${i}.bam | wc -l)
 ONE=$(samtools view -F 4 ${i}.bam | wc -l) #mapped reads
 TWO=$(samtools view -F 4 -q 20 ${i}.bam | wc -l) #mapped reads with quality of 20
 THREE=$(samtools view -f 1024 ${i}.bam | wc -l) #pcr duplicates
@@ -18,9 +20,11 @@ AVG=$(cat ${i}.coverage  | awk '{sum+=$3; sumsq+=$3*$3} END { print sum/NR}')
 
 STD=$(cat ${i}.coverage  | awk '{sum+=$3; sumsq+=$3*$3} END { print sqrt(sumsq/NR - (sum/NR)**2)}')
 
+COV=$(echo "scale=4 ; $TWO / $first" | bc)
+
 rm ${i}.coverage
 
-echo ${i},$ONE,$TWO,$THREE,$FOUR,$AVG,$STD
+echo ${i},$first,$ONE,$TWO,$THREE,$FOUR,$AVG,$STD,$COV
 
  } >> ~/reciprocal_t/analysis/count.aligned.txt
 
