@@ -1,7 +1,7 @@
 
-## filtering raw variants 
+## filtering raw variants
 
-library(stringr) 
+library(stringr)
 
 dat <- read.table("~/reciprocal_t/analysis/snp_all_out", stringsAsFactors=FALSE, skip=1)
 
@@ -28,11 +28,11 @@ dat1 <- dat[which(dat$SamplesNC == 0),]
 nrow(dat1)
 
 # now, filter to include only variable sites
-    # have 48 samples. want at least 4 variable. 
+    # have 48 samples. want at least 4 variable.
     # so homozygotes both need to be < 44
 dat1 <- dat1[which(dat1$SamplesRef < 44 & dat1$SamplesHom < 44 ),]
 nrow(dat1)
-#[1] 420010
+#[1] 682418
 dat2 <- dat1
 
 # filter by coverage:
@@ -43,14 +43,14 @@ nrow(dat3)
 #[1] 589518
 
 #many of these are skewed by indels. only keep reads where depth of actual bialleleic snps > 40
-# from the manual: Also, VarScan reports variants on a biallelic basis. 
-    #That is, for a given SNP call, the "reads1" column is the number of 
-    #reference-supporting reads (RD), and the "reads2" column is the number of 
-    #variant-supporting reads (AD). 
-    #There may be additional reads at that position showing other bases (SNP or indel variants). 
-    #If these other variants meet the calling criteria, they will be reported in 
-    #their own line. If not, it may look like you have "missing" reads. 
-# columns for each call are: 
+# from the manual: Also, VarScan reports variants on a biallelic basis.
+    #That is, for a given SNP call, the "reads1" column is the number of
+    #reference-supporting reads (RD), and the "reads2" column is the number of
+    #variant-supporting reads (AD).
+    #There may be additional reads at that position showing other bases (SNP or indel variants).
+    #If these other variants meet the calling criteria, they will be reported in
+    #their own line. If not, it may look like you have "missing" reads.
+# columns for each call are:
     #consensus genotype, total depth, num of read 1, num of read 2, allele freq, pvalue of snp.
 keep <- as.data.frame(matrix(nrow=nrow(dat3), ncol=length(pops)))
 colnames(keep) <- pops
@@ -65,21 +65,14 @@ colnames(keep) <- pops
 
     }
 
-low_cv <- (apply(keep, 1, function(x) {ifelse((length(which(x < 30)) > 0), FALSE, TRUE)}))
-
+low_cv <- (apply(keep, 1, function(x) {ifelse((length(which(x < 40)) > 0), FALSE, TRUE)}))
 sum(low_cv)
-
+#[1] 443866
 dat4 <- dat3[low_cv,]
 nrow(dat4)
 dat3 <- dat4
 nrow(dat3)
-# 584229
-
-# save filtered genotypes
-
-
-write.table(file="~/reciprocal_t/analysis/filtered_variants.txt", dat3, sep="\t", 
-              row.names=FALSE, quote=FALSE)
+# [1] 443866
 
 # here calculate allele freqs
 # columns for each call are: consensus genotype, total depth, num of read 1, num of read 2, allele freq, pvalue of snp.
@@ -97,11 +90,30 @@ colnames(af) <- pops
 
     }
 
+afct.maf <- (sapply(af,function(x)  
+          ifelse(x > 0.5, (1-x), x)))
 
-af.out <- (cbind(paste(dat3$Chrom, dat3$Position, sep=":"),af))
+low_maf <- (apply(afct.maf, 1, function(x) {ifelse((length(which(x > 0.025)) < 4), FALSE, TRUE)}))
+sum(low_maf)
+# [1] 438696
 
-colnames(af.out) <- c("SNP", colnames(af))
+dat4 <- dat3[low_maf,]
+nrow(dat4)
+#[1] 438696
 
-write.table(file="~/reciprocal_t/analysis/filtered_allele_freqs.txt", af.out, sep="\t", 
+af_f <- af[low_maf,]
+
+af.out <- (cbind(paste(dat4$Chrom, dat4$Position, sep=":"),af_f))
+
+colnames(af.out) <- c("SNP", colnames(af_f))
+
+
+
+# save filtered genotypes
+
+
+write.table(file="~/reciprocal_t/analysis/filtered_variants.txt", dat4, sep="\t",
               row.names=FALSE, quote=FALSE)
 
+write.table(file="~/reciprocal_t/analysis/filtered_allele_freqs.txt", af.out, sep="\t",
+              row.names=FALSE, quote=FALSE)
