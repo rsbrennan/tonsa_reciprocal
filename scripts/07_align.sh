@@ -10,8 +10,8 @@ my_samblstr=~/bin/samblaster/samblaster
 
 cd ~/reciprocal_t/data/trimmed/
 
-for sample in `ls ~/reciprocal_t/data/trimmed | grep '.fq.gz' | cut -f 1-3 -d "_"| uniq | grep -v 'AAAA\|HHHH'
-`
+for sample in `ls ~/reciprocal_t/data/trimmed | grep '.fq.gz' | cut -f 1-3 -d "_"| uniq`
+
 do
 
     echo "starting sample ${sample}"

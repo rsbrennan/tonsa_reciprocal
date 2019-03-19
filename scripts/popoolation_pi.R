@@ -1,6 +1,11 @@
 
+# FIgure 3, popoolation_pi.R
+
 library(stringr)
 library(tidyr)
+library(ggplot2)
+library(extrafont)
+font_import()
 
 #locate the directory containing the files.
 dir <- "~/reciprocal_t/analysis/popoolation"
@@ -68,7 +73,7 @@ legend("topright", c("AAAA", "HHHH", "AA in HH", "HH in AA"),
 
 
 
-## plot mean het for each group. sep by treatments, etc. 
+## plot mean het for each group. sep by treatments, etc.
 
 het_mean <-as.data.frame(matrix(ncol=6, nrow=length(pops)))
 colnames(het_mean) <- c("ID", "Generation", "comb", "Line", "Treatment", "Heterozygosity")
@@ -93,11 +98,11 @@ pa <- ggplot(data=het_mean, aes(x=comb, y=Heterozygosity, fill=Generation, shape
   scale_shape_manual(values=c(21, 24, 22)) +
   #geom_point(data=all_mean,aes(x=comb, y=Heterozygosity))+
   #geom_boxplot(aes(fill=Generation))+
-  stat_summary(geom = "boxplot", 
-             fun.data = function(x) setNames(quantile(x, c(0.00, 0.25, 0.5, 0.75, 1)), c("ymin", "lower", "middle", "upper", "ymax")), 
+  stat_summary(geom = "boxplot",
+             fun.data = function(x) setNames(quantile(x, c(0.00, 0.25, 0.5, 0.75, 1)), c("ymin", "lower", "middle", "upper", "ymax")),
              position = "dodge" , show.legend=FALSE)+
     theme_bw()+
-   scale_x_discrete(labels=c("AAAA" = "AA in AA", 
+   scale_x_discrete(labels=c("AAAA" = "AA in AA",
                                 "HHAA" = "AA in HH",
                                 "HHHH" = "HH in HH",
                                 "AAHH" = "HH in AA"))+
@@ -116,6 +121,7 @@ for(i in 1:length(pops)){
 # solution: add letters for post-hoc Tukey results above upper whiskers
 
 library(dplyr)
+library(ggthemes)
 totals <- het_mean %>%
     group_by(comb,Generation) %>%
              slice(which.max(Heterozygosity))
@@ -127,14 +133,14 @@ pb <- ggplot(data=het_mean, aes(x=comb, y=Heterozygosity, fill=Generation, shape
   scale_shape_manual(values=c(21, 24, 22)) +
   #geom_point(data=all_mean,aes(x=comb, y=Heterozygosity))+
   #geom_boxplot(aes(fill=Generation))+
-  stat_summary(geom = "boxplot", 
-             fun.data = function(x) setNames(quantile(x, c(0.00, 0.25, 0.5, 0.75, 1)), c("ymin", "lower", "middle", "upper", "ymax")), 
+  stat_summary(geom = "boxplot",
+             fun.data = function(x) setNames(quantile(x, c(0.00, 0.25, 0.5, 0.75, 1)), c("ymin", "lower", "middle", "upper", "ymax")),
              position = "dodge" , show.legend=FALSE)+
-    theme_bw()+
-   scale_x_discrete(labels=c("AAAA" = "AA in AA", 
-                                "HHAA" = "AA in HH",
-                                "HHHH" = "HH in HH",
-                                "AAHH" = "HH in AA"))+
+theme_base() +   
+scale_x_discrete(labels=c("AAAA" = "AM in AM",
+                                "HHAA" = "AM in GH",
+                                "HHHH" = "GH in GH",
+                                "AAHH" = "GH in AM"))+
    xlab("")+ ylab(expression(paste("Median  ",pi))) +
    ylim(0.008,  0.0113) +
  #  stat_summary(geom = 'text', label = letters[1:12], fun.y = (max), position = position_dodge(width=0.95))
@@ -143,8 +149,9 @@ pb <- ggplot(data=het_mean, aes(x=comb, y=Heterozygosity, fill=Generation, shape
         fill = NULL), data = totals,
         position = position_dodge(width=0.95), size=4)+
      theme(axis.text.x = element_text(angle=45, hjust=1, size=16),
-        axis.title.y = element_text( size=16)) 
+        axis.title.y = element_text( size=16))
 
+pb
 
 png("~/reciprocal_t/figures/pi.png", res=300, height=5, width=7, units="in")
 
@@ -231,4 +238,3 @@ summary(m1)
 
 anova(m2,m1)
 anova(m3,m2)
-
