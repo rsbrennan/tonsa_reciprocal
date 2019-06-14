@@ -5,11 +5,10 @@ library(stringr)
 library(tidyr)
 library(ggplot2)
 library(extrafont)
-font_import()
 
 #locate the directory containing the files.
 dir <- "~/reciprocal_t/analysis/popoolation"
-list.files(dir)
+#list.files(dir)
 files <- file.path(dir, list.files(dir))
 
 files <- files[grep("100bp.pi", files)]
@@ -84,7 +83,7 @@ het_mean$Line <- substr(pops, 3,4)
 het_mean$Generation <- substr(pops, 6,7)
 
 for(i in 1:length(pops)){
-    a <- mean(d[[grep(pops[i], names(d))]]$pi, na.rm=TRUE)
+    a <- median(d[[grep(pops[i], names(d))]]$pi, na.rm=TRUE)
     het_mean$Heterozygosity[which(het_mean$ID == pops[i])] <- a
 
 }
@@ -127,16 +126,16 @@ totals <- het_mean %>%
              slice(which.max(Heterozygosity))
 
 pb <- ggplot(data=het_mean, aes(x=comb, y=Heterozygosity, fill=Generation, shape=Generation)) +
-  geom_point(position=position_dodge(width=0.95),aes(group=Generation), size=4, alpha=0.9) +
+  geom_point(position=position_dodge(width=0.95),aes(group=Generation), size=5.5, alpha=0.9) +
 
-  scale_fill_manual(values=alpha(c("darkolivegreen3","gray60", "darkgoldenrod3"), 0.8)) +
-  scale_shape_manual(values=c(21, 24, 22)) +
+  scale_fill_manual(values=alpha(c("blue3","firebrick3", "springgreen4"), 0.8)) +
+  scale_shape_manual(values=c(23, 25, 21)) +
   #geom_point(data=all_mean,aes(x=comb, y=Heterozygosity))+
   #geom_boxplot(aes(fill=Generation))+
   stat_summary(geom = "boxplot",
              fun.data = function(x) setNames(quantile(x, c(0.00, 0.25, 0.5, 0.75, 1)), c("ymin", "lower", "middle", "upper", "ymax")),
-             position = "dodge" , show.legend=FALSE)+
-theme_base() +   
+             position = "dodge" , show.legend=FALSE, aes(alpha=0.5))+
+theme_base() +
 scale_x_discrete(labels=c("AAAA" = "AM in AM",
                                 "HHAA" = "AM in GH",
                                 "HHHH" = "GH in GH",
