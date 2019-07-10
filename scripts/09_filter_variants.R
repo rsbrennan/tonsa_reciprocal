@@ -28,13 +28,8 @@ nrow(dat)
 dat1 <- dat[which(dat$SamplesNC == 0),]
 nrow(dat1)
 # [1] 920486
-# now, filter to include only variable sites
-    # have 48 samples. want at least 4 variable.
-    # so homozygotes both need to be < 44
-#dat1 <- dat1[which(dat1$SamplesRef < 44 & dat1$SamplesHom < 44 ),]
-#nrow(dat1)d
-#[1] 682418d
-dat2 <- dat1d
+
+dat2 <- dat1
 
 # filter by coverage:
 filt <- (median(as.numeric((str_split_fixed(dat2[,5] , ":", n=6))[,2])))*3
@@ -133,4 +128,3 @@ write.table(file="~/reciprocal_t/analysis/filtered_variants.txt", dat4, sep="\t"
 
 write.table(file="~/reciprocal_t/analysis/filtered_allele_freqs.txt", af.out, sep="\t",
               row.names=FALSE, quote=FALSE)
-
