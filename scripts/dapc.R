@@ -4,15 +4,15 @@ library(adegenet)
 library(ggplot2)
 library(ggpubr)
 library(MCMCglmm)
-library(reshape)
 library(dplyr)
 library(tidyr)
 library(DESeq2)
+library(reshape)
 
 ########################################################################################################
 ########################################################################################################
 ########################################################################################################
-########################## 
+##########################
 ########################## snps
 ##########################
 ########################################################################################################
@@ -39,65 +39,56 @@ pops <- c(
 freqs <- t(af[,2:ncol(af)])
 colnames(freqs) <- c(paste(dat3$Chrom, dat3$Position, sep=":"))
 
-############################################# 
-#discriminant function analysis
-############################################# 
-
 dat <- af
-head(dat) 
 
-####################################################################################
-##########################################
-##
-## sep by generation
-##
-##########################################
-####################################################################################
+###############################################################################################
+###############################################################################################
+######
+###### F1
+######
+###############################################################################################
+###############################################################################################
 ctr <-dat[,grep("AAAA_F1|HHHH_F1",colnames(dat))] # in home envir
 trt <-dat[,grep("AAHH_F1|HHAA_F1",colnames(dat))] # in away envir
 
-pcp=prcomp(t(ctr), retx=TRUE, center=TRUE, scale.=FALSE) #scale.=TRUE
+pcp=prcomp(t(ctr), retx=TRUE, center=TRUE, scale.=FALSE)
 scores=pcp$x
-#screeplot(pcp,bstick=T)
+screeplot(pcp,bstick=T)
 
-# adegenet: finding clusters (even though we know what clusters we want) - 
-clus.ctr=find.clusters(t(ctr),max.n.clus=10, 
+# adegenet: finding clusters (even though we know what clusters we want) -
+clus.ctr=find.clusters(t(ctr),max.n.clus=10,
   n.pca=3, n.clust=2)
 
 #Use clus$grp to rename groups
 clus.ctr$grp=c(rep(2, 4),
-                rep(1, 4)) 
+                rep(1, 4))
+
+# generate the actual DAPC
 dp.ctr=dapc(t(ctr),clus.ctr$grp, var.loadings=TRUE, n.pca=3, n.da=1,
-var.contrib =TRUE) 
-#scatter(dp.ctr,bg="white",scree.da=FALSE,legend=TRUE,solid=.4) 
-pred.trt<-predict.dapc(dp.ctr,newdata=(t(trt))) 
+var.contrib =TRUE)
+scatter(dp.ctr,bg="white",scree.da=FALSE,legend=TRUE,solid=.4)
 
-#must create another dataframe structure in order to plot these predicted values
-test<-dp.ctr
-test$ind.coord<-pred.trt$ind.scores
-test$posterior<-pred.trt$posterior
-test$assign<-pred.trt$assign
+# then add in the transplanted groups to the previously generated DAPC
+pred.trt<-predict.dapc(dp.ctr,newdata=(t(trt)))
 
-#assign groups
-#scatter(test,bg="white",scree.da=FALSE,legend=TRUE,solid=.4,ylim=c(0,0.6),xlim=c(-4,4),add.plot = TRUE) 
-
+# create another dataframe structure in order to plot these predicted values
 dpc=data.frame(rbind(dp.ctr$ind.coord,pred.trt$ind.scores))
 
 dpc$Line <- substr(row.names(dpc),3,4)
 dpc$Treatment <- substr(row.names(dpc),1,2)
 
-z <- ggplot(dpc, aes(x=LD1, fill=Line, color=Treatment, linetype=Treatment)) +
-  geom_density(alpha=0.4, lwd=1) +
-  scale_color_manual(values=c("dodgerblue2","firebrick2"))+
-  scale_fill_manual(values=c("dodgerblue2","firebrick2")) +
-  geom_hline(color = "white", yintercept = 0, lwd=2.5) +
-  ylim(0,0.7) + theme_classic()
-#z
-
 dpc$gp <- c(rep(1.1,8), rep(1.9,4), rep(1.5,4))
 
-a1 <- ggplot(dpc, aes(x=LD1, y=gp, shape=Line, fill=Treatment)) +
-  geom_point(size=6, lwd=2)+ 
+# notusing this, but it can be a nice way to plot things in a density plot sort of way.
+  # I like the other ones better though.
+#z <- ggplot(dpc, aes(x=LD1, fill=Line, color=Treatment, linetype=Treatment)) +
+#  geom_density(alpha=0.4, lwd=1) +
+#  scale_color_manual(values=c("dodgerblue2","firebrick2"))+
+#  scale_fill_manual(values=c("dodgerblue2","firebrick2")) +
+#  geom_hline(color = "white", yintercept = 0, lwd=2.5) + theme_classic()
+
+a <- ggplot(dpc, aes(x=LD1, y=gp, shape=Line, fill=Treatment)) +
+  geom_point(size=6, lwd=2)+
   ylim(1, 3) +
   scale_color_manual(values=c("cornflowerblue","brown2"))+
   scale_fill_manual(values=alpha(c("cornflowerblue","brown2"), 0.8)) +
@@ -107,14 +98,14 @@ a1 <- ggplot(dpc, aes(x=LD1, y=gp, shape=Line, fill=Treatment)) +
   geom_segment(
     x = mean(dpc$LD1[grep( "AAAA", row.names(dpc))]),
     xend = mean(dpc$LD1[grep( "HHAA", row.names(dpc))]),
-    y=2.3, yend=2.3,
-     size = 1.7, arrow = arrow(length = unit(0.2, "inches")),
+    y=2.5, yend=2.5,
+    size = 1.7, arrow = arrow(length = unit(0.2, "inches")),
     color="black")+
   geom_segment(
     x = mean(dpc$LD1[grep( "HHHH", row.names(dpc))]),
     xend = mean(dpc$LD1[grep( "AAHH", row.names(dpc))]),
-    y=2.5, yend=2.5,
-     size = 1.7, arrow = arrow(length = unit(0.2, "inches")),
+    y=2.7, yend=2.7,
+    size = 1.7, arrow = arrow(length = unit(0.2, "inches")),
     color="black")+
     theme_classic()+
   ylab(" ")+
@@ -124,7 +115,6 @@ a1 <- ggplot(dpc, aes(x=LD1, y=gp, shape=Line, fill=Treatment)) +
     axis.line.y=element_blank(),
     axis.ticks.y=element_blank(),
     axis.text.y=element_blank())
-#a
 
 
 ##################
@@ -137,7 +127,7 @@ dpc$home[grep("AAAA|HHHH", row.names(dpc))] <- 0
 
 prior = list(R = list(V = 1, nu = 0.002), G = list(G1 = list(V=1, nu=0.002,alpha.mu=0, alpha.V=1000)))
 
-mod1=MCMCglmm(LD1~Line+Line:home, random=~rep, prior= prior, data=dpc,nitt=75000, thin=25, burnin=5000)
+mod1 <- MCMCglmm(LD1~Line+Line:home, random=~rep, prior= prior, data=dpc,nitt=75000, thin=25, burnin=5000)
 summary(mod1)
 posterior.mode(mod1$VCV)
 
@@ -151,32 +141,24 @@ HPDinterval(awayDelta)
 if (is.na(table(awayDelta<0)[2])) {
   cat("p <",signif(1/length(awayDelta),1))
 } else { cat("p =",signif(table(awayDelta<0)[2]/length(awayDelta),2)) } 
-# p = 0.54
-
-
-###
-### save loadings
-###
-
-loadings.out <- data.frame(SNP = af$SNP, 
-          LD1= dp.ctr$var.contr)
-write.table(file="~/reciprocal_t/analysis/snp_contrib_F1.txt", loadings.out, sep="\t", 
-              row.names=FALSE, quote=FALSE)
+# p = 0.52
 
 ###############################################################################################
-############### F2 
+###############################################################################################
+######
+###### F2
+######
+###############################################################################################
 ###############################################################################################
 
+ctr <-dat[,grep("AAAA_F2|HHHH_F2",colnames(dat))]
+trt <-dat[,grep("AAHH_F2|HHAA_F2",colnames(dat))]
 
-ctr <-dat[,grep("AAAA_F2|HHHH_F2",colnames(dat))] # in home envir
-trt <-dat[,grep("AAHH_F2|HHAA_F2",colnames(dat))] # in away envir
-
-pcp=prcomp(t(ctr), retx=TRUE, center=TRUE, scale.=FALSE) #scale.=TRUE
+pcp=prcomp(t(ctr), retx=TRUE, center=TRUE, scale.=FALSE)
 scores=pcp$x
-#screeplot(pcp,bstick=T)
+screeplot(pcp,bstick=T)
 
-# adegenet: finding clusters (even though we know what clusters we want) - 
-  # choose 20 PCs and 2 groups
+# adegenet: finding clusters
 clus.ctr=find.clusters(t(ctr),max.n.clus=10, 
   n.pca=3, n.clust=2)
 
@@ -186,35 +168,18 @@ clus.ctr$grp=c(rep(2, 4),
 # discriminant function for two groups:
 dp.ctr=dapc(t(ctr),clus.ctr$grp, var.loadings=TRUE, n.pca=3, n.da=1,
 var.contrib =TRUE) #keep 7 and 1
-#scatter(dp.ctr,bg="white",scree.da=FALSE,legend=TRUE,solid=.4) 
-    #discriminant function for ORIGIN type expression
+scatter(dp.ctr,bg="white",scree.da=FALSE,legend=TRUE,solid=.4) 
+
 pred.trt<-predict.dapc(dp.ctr,newdata=(t(trt))) 
 
 #must create another dataframe structure in order to plot these predicted values
-test<-dp.ctr
-test$ind.coord<-pred.trt$ind.scores
-test$posterior<-pred.trt$posterior
-test$assign<-pred.trt$assign
-
-#assign groups
-#scatter(test,bg="white",scree.da=FALSE,legend=TRUE,solid=.4,ylim=c(0,0.6),xlim=c(-4,4),add.plot = TRUE) 
-
-dpc=data.frame(rbind(dp.ctr$ind.coord,pred.trt$ind.scores))
-
+dpc <- data.frame(rbind(dp.ctr$ind.coord,pred.trt$ind.scores))
 dpc$Line <- substr(row.names(dpc),3,4)
 dpc$Treatment <- substr(row.names(dpc),1,2)
 
-z <- ggplot(dpc, aes(x=LD1, fill=Line, color=Treatment, linetype=Treatment)) +
-  geom_density(alpha=0.4, lwd=1) +
-  scale_color_manual(values=c("dodgerblue2","firebrick2"))+
-  scale_fill_manual(values=c("dodgerblue2","firebrick2")) +
-  geom_hline(color = "white", yintercept = 0, lwd=2.5) +
-  ylim(0,0.7) + theme_classic()
-#z
-
 dpc$gp <- c(rep(1.1,8), rep(1.9,4), rep(1.5,4))
 
-b1 <- ggplot(dpc, aes(x=LD1, y=gp, shape=Line, fill=Treatment)) +
+b <- ggplot(dpc, aes(x=LD1, y=gp, shape=Line, fill=Treatment)) +
   geom_point(size=6, lwd=2)+ 
   ylim(1, 3) +
   scale_color_manual(values=c("cornflowerblue","brown2"))+
@@ -225,13 +190,13 @@ b1 <- ggplot(dpc, aes(x=LD1, y=gp, shape=Line, fill=Treatment)) +
   geom_segment(
     x = mean(dpc$LD1[grep( "AAAA", row.names(dpc))]),
     xend = mean(dpc$LD1[grep( "HHAA", row.names(dpc))]),
-    y=2.3, yend=2.3,
+    y=2.5, yend=2.5,
      size = 1.7, arrow = arrow(length = unit(0.2, "inches")),
     color="black")+
   geom_segment(
     x = mean(dpc$LD1[grep( "HHHH", row.names(dpc))]),
     xend = mean(dpc$LD1[grep( "AAHH", row.names(dpc))]),
-    y=2.5, yend=2.5,
+    y=2.7, yend=2.7,
      size = 1.7, arrow = arrow(length = unit(0.2, "inches")),
     color="black")+
     theme_classic()+
@@ -242,8 +207,6 @@ b1 <- ggplot(dpc, aes(x=LD1, y=gp, shape=Line, fill=Treatment)) +
     axis.line.y=element_blank(),
     axis.ticks.y=element_blank(),
     axis.text.y=element_blank())
-#b
-
 
 ##################
 ###### use MCMCglmm to set for sig
@@ -256,8 +219,8 @@ dpc$home[grep("AAAA|HHHH", row.names(dpc))] <- 0
 prior = list(R = list(V = 1, nu = 0.002), G = list(G1 = list(V=1, nu=0.002,alpha.mu=0, alpha.V=1000)))
 
 mod1=MCMCglmm(LD1~Line+Line:home, random=~rep, prior= prior, data=dpc,nitt=75000, thin=25, burnin=5000)
-summary(mod1)
-posterior.mode(mod1$VCV)
+#summary(mod1)
+#posterior.mode(mod1$VCV)
 
 # calculating difference in magnitudes of orii:away and orio:away using sampled sets of parameters:
 awayDelta=abs(mod1$Sol[,"LineHH:home"])-abs(mod1$Sol[,"LineAA:home"])
@@ -271,65 +234,41 @@ if (is.na(table(awayDelta<0)[2])) {
 } else { cat("p =",signif(table(awayDelta<0)[2]/length(awayDelta),2)) } 
 # p = 0.3
 
-###
-### save loadings
-###
 
-loadings.out <- data.frame(SNP = af$SNP, 
-          LD1= dp.ctr$var.contr)
-write.table(file="~/reciprocal_t/analysis/snp_contrib_F2.txt", loadings.out, sep="\t", 
-              row.names=FALSE, quote=FALSE)
 
-#########################
-############### F3
-#########################
+###############################################################################################
+###############################################################################################
+######
+###### SNPS F3
+######
+###############################################################################################
+###############################################################################################
 
 ctr <-dat[,grep("AAAA_F3|HHHH_F3",colnames(dat))] # in home envir
 trt <-dat[,grep("AAHH_F3|HHAA_F3",colnames(dat))] # in away envir
 
 pcp=prcomp(t(ctr), retx=TRUE, center=TRUE, scale.=FALSE) #scale.=TRUE
 scores=pcp$x
-#screeplot(pcp,bstick=T)
+screeplot(pcp,bstick=T)
 
-clus.ctr=find.clusters(t(ctr),max.n.clus=10, 
+clus.ctr=find.clusters(t(ctr),max.n.clus=10,
   n.pca=3, n.clust=2)
- 
+
 #Use clus$grp to rename groups
 clus.ctr$grp=c(rep(2, 4),
-                rep(1, 4)) #tell the DF which groups you want to cluster; in this case in2in and off2off
+                rep(1, 4))
 # discriminant function for two groups:
 dp.ctr=dapc(t(ctr),clus.ctr$grp, var.loadings=TRUE, n.pca=3, n.da=1,
-var.contrib =TRUE) #keep 7 and 1
-#scatter(dp.ctr,bg="white",scree.da=FALSE,legend=TRUE,solid=.4) 
-    #discriminant function for ORIGIN type expression
-pred.trt<-predict.dapc(dp.ctr,newdata=(t(trt))) 
+var.contrib =TRUE)
 
-#must create another dataframe structure in order to plot these predicted values
-test<-dp.ctr
-test$ind.coord<-pred.trt$ind.scores
-test$posterior<-pred.trt$posterior
-test$assign<-pred.trt$assign
-
-#assign groups
-#test$grp<-as.factor(c(2,2,2,2,1,1,1,1)) #make sure origin is same num as before: IN=2, OFF=1
-#scatter(test,bg="white",scree.da=FALSE,legend=TRUE,solid=.4,ylim=c(0,0.6),xlim=c(-4,4),add.plot = TRUE) 
+pred.trt<-predict.dapc(dp.ctr,newdata=(t(trt)))
 
 dpc=data.frame(rbind(dp.ctr$ind.coord,pred.trt$ind.scores))
-
 dpc$Line <- substr(row.names(dpc),3,4)
 dpc$Treatment <- substr(row.names(dpc),1,2)
-
-z <- ggplot(dpc, aes(x=LD1, fill=Line, color=Treatment, linetype=Treatment)) +
-  geom_density(alpha=0.4, lwd=1) +
-  scale_color_manual(values=c("dodgerblue2","firebrick2"))+
-  scale_fill_manual(values=c("dodgerblue2","firebrick2")) +
-  geom_hline(color = "white", yintercept = 0, lwd=2.5) +
-  ylim(0,0.7) + theme_classic()
-
-
 dpc$gp <- c(rep(1.1,8), rep(1.9,4), rep(1.5,4))
 
-c1 <- ggplot(dpc, aes(x=LD1, y=gp, shape=Line, fill=Treatment)) +
+c <- ggplot(dpc, aes(x=LD1, y=gp, shape=Line, fill=Treatment)) +
   geom_point(size=6, lwd=2)+ 
   ylim(1, 3) +
   scale_color_manual(values=c("cornflowerblue","brown2"))+
@@ -340,13 +279,13 @@ c1 <- ggplot(dpc, aes(x=LD1, y=gp, shape=Line, fill=Treatment)) +
   geom_segment(
     x = mean(dpc$LD1[grep( "AAAA", row.names(dpc))]),
     xend = mean(dpc$LD1[grep( "HHAA", row.names(dpc))]),
-    y=2.3, yend=2.3,
+    y=2.5, yend=2.5,
      size = 1.7, arrow = arrow(length = unit(0.2, "inches")),
     color="black")+
   geom_segment(
     x = mean(dpc$LD1[grep( "HHHH", row.names(dpc))]),
     xend = mean(dpc$LD1[grep( "AAHH", row.names(dpc))]),
-    y=2.5, yend=2.5,
+    y=2.7, yend=2.7,
      size = 1.7, arrow = arrow(length = unit(0.2, "inches")),
     color="black")+
     theme_classic()+
@@ -357,7 +296,7 @@ c1 <- ggplot(dpc, aes(x=LD1, y=gp, shape=Line, fill=Treatment)) +
     axis.line.y=element_blank(),
     axis.ticks.y=element_blank(),
     axis.text.y=element_blank())
-
+#c
 
 
 dpc$rep <- substr(row.names(dpc), 9,13)
@@ -384,29 +323,22 @@ if (is.na(table(awayDelta<0)[2])) {
 # 0.018
 
 
-png("~/reciprocal_t/figures/dapc_snps_gen.png", height = 5, width = 5, units="in", res=300)
-ggarrange(a1,b1,c1, ncol=1, nrow=3, common.legend=TRUE)
+png("~/reciprocal_t/figures/dapc_snps_gen.png", height = 6, width = 5, units="in", res=300)
+ggarrange(a,b,c, ncol=1, nrow=3, common.legend=TRUE)
 dev.off()
 
-###
-### save loadings
-###
-
-loadings.out <- data.frame(SNP = af$SNP, 
-          LD1= dp.ctr$var.contr)
-write.table(file="~/reciprocal_t/analysis/snp_contrib_F3.txt", loadings.out, sep="\t", 
-              row.names=FALSE, quote=FALSE)
-       
-
-
-
-
 ########################################################################################################
 ########################################################################################################
 ########################################################################################################
-################ 
+########################################################################################################
+########################################################################################################
+########################################################################################################
+################
 ################ RNAseq
 ################
+########################################################################################################
+########################################################################################################
+########################################################################################################
 ########################################################################################################
 ########################################################################################################
 ########################################################################################################
@@ -414,25 +346,21 @@ write.table(file="~/reciprocal_t/analysis/snp_contrib_F3.txt", loadings.out, sep
 library(tximportData)
 library(tximport)
 
-#### https://stats.stackexchange.com/questions/197417/how-to-summarize-credible-intervals-for-a-medical-audience
-## "The 95% most credible differences fall between [low 95% HDI limit] and [high 95% HDI limit]" 
-    # "(here I'm using the 95% highest density interval [HDI] as the credible interval, and because 
-    #those are by definition the highest density parameter values they are glossed as 'most credible')"
 
-
-
-#####################################
-#
-# sep by gen
-#
-#####################################
+###############################################################################################
+###############################################################################################
+######
+###### DGE F1
+######
+###############################################################################################
+###############################################################################################
 
 ###
-### DEseq2- 
+### DEseq2-
 ###
 
 dir <- "~/reciprocal_t/analysis/salmon"
-list.files(dir)
+#list.files(dir)
 
 samples <- read.table("~/reciprocal_t/analysis/sample_id.txt", header=FALSE)
 
@@ -441,16 +369,15 @@ files <- file.path(dir, samples$V1, "quant.sf")
 names(files) <- samples$V1
 all(file.exists(files))
 
-#subset files to only include F1 
+#subset files to only include F1
 files <- files[grep("F1", files)]
 
 gene_tran <- read.table("/data/atonsa/Atonsa_gen_trans_agp_gff/Atonsa_transcript_to_gene", header=FALSE)
 tx2gene <- data.frame(transcript=gene_tran$V2, gene=gene_tran$V1)
 
+# use tximport to read in files
 txi <- tximport(files, type = "salmon", tx2gene = tx2gene)
-names(txi)
 
-head(txi$counts)
 f1samp <- as.data.frame(samples$V1[grep("F1", samples$V1)])
 colnames(f1samp) <- c("V1")
 
@@ -469,14 +396,14 @@ sampleTable <- data.frame(
 rownames(sampleTable) <- colnames(txi$counts)
 
 # setting this up, row info is each transcript/gene
-  # columb is phenotypic data
+  # column is phenotypic data
 
 rownames(sampleTable) <- colnames(txi$counts)
 
-dds <- DESeqDataSetFromTximport(txi, 
-                colData=sampleTable, 
+# import to DESeq2. this usese counts from tximport. from salmon. gene level
+dds <- DESeqDataSetFromTximport(txi,
+                colData=sampleTable,
                 design = ~ Line + Treatment + Line:Treatment)
-                      #Treatment:Line + Treatment*Line*Generation)
 
 # remove rows where count < 10 in more than 90% of samples
 keep <- apply(counts(dds), 1, function(x) {ifelse(length(which(x > 10)) > 13, TRUE, FALSE)})
@@ -485,22 +412,22 @@ nrow(dds)
 #[1] 23323
 
 # then rolog transform
-rld<-rlog(dds,blind=TRUE) #use blind=TRUE to not account for experimental design
+rld<-rlog(dds,blind=TRUE)
 head(assay(rld))
 
-dat=as.data.frame(assay(rld)) 
+dat=as.data.frame(assay(rld))
 colnames(dat)<-colnames(dds)
 
-#################### 
+####################
 #discriminant function analysis
 ####################
 
 ctr <-dat[,grep("AAAA|HHHH",colnames(dat))] # in home envir
 trt <-dat[,grep("AAHH|HHAA",colnames(dat))] # in away envir
 
-pcp=prcomp(t(ctr), retx=TRUE, center=TRUE, scale.=TRUE) #scale.=TRUE
+pcp=prcomp(t(ctr), retx=TRUE, center=TRUE, scale.=FALSE) # note. the scale command doesnt have much impact
 scores=pcp$x
-#screeplot(pcp,bstick=T)
+screeplot(pcp,bstick=T)
 
 # adegenet: finding clusters (even though we know what clusters we want) - choose 7 PCs and 2 groups
 clus.ctr=find.clusters(t(ctr),max.n.clus=7,
@@ -508,34 +435,18 @@ clus.ctr=find.clusters(t(ctr),max.n.clus=7,
 
 #rename groups
 clus.ctr$grp=c(rep(2, 4),
-                rep(1, 4)) #tell the DF which groups you want to cluster
+                rep(1, 4))
 
 # discriminant function for two groups:
 dp.ctr=dapc(t(ctr),clus.ctr$grp,
               n.pca=4, n.da=2)  #keep 4 and 2
-#scatter(dp.ctr,bg="white",scree.da=FALSE,legend=TRUE,solid=.4) #discriminant function for ORIGIN type expression
+scatter(dp.ctr,bg="white",scree.da=FALSE,legend=TRUE,solid=.4) #discriminant function for ORIGIN type expression
 pred.trt<-predict.dapc(dp.ctr,newdata=(t(trt))) #skip IO11C for host b/c outlier sample in WGCNA
 
 #must create another dataframe structure in order to plot these predicted values
-test<-dp.ctr
-test$ind.coord<-pred.trt$ind.scores
-test$posterior<-pred.trt$posterior
-test$assign<-pred.trt$assign
-
-#assign groups
-#scatter(test,bg="white",scree.da=FALSE,legend=TRUE,solid=.4,ylim=c(0,0.6),xlim=c(-4,4),add.plot = TRUE) 
-
 dpc=data.frame(rbind(dp.ctr$ind.coord,pred.trt$ind.scores))
 dpc$Line <- substr(row.names(dpc),3,4)
 dpc$Treatment <- substr(row.names(dpc),1,2)
-
-z <- ggplot(dpc, aes(x=LD1, fill=Line, color=Treatment, linetype=Treatment)) +
-  geom_density(alpha=0.4, lwd=1) +
-  scale_color_manual(values=c("dodgerblue2","firebrick2"))+
-  scale_fill_manual(values=c("dodgerblue2","firebrick2")) +
-  geom_hline(color = "white", yintercept = 0, lwd=2.5)
-#z
-
 dpc$gp <- c(rep(1.1,8), rep(1.9,4), rep(1.5,4))
 
 a2 <- ggplot(dpc, aes(x=LD1, y=gp, fill=Treatment, shape=Line)) +
@@ -549,13 +460,13 @@ a2 <- ggplot(dpc, aes(x=LD1, y=gp, fill=Treatment, shape=Line)) +
   geom_segment(
     x = mean(dpc$LD1[grep( "AAAA", row.names(dpc))]),
     xend = mean(dpc$LD1[grep( "HHAA", row.names(dpc))]),
-    y=2.3, yend=2.3,
+    y=2.5, yend=2.5,
      size = 1.7, arrow = arrow(length = unit(0.2, "inches")),
     color="black")+
   geom_segment(
     x = mean(dpc$LD1[grep( "HHHH", row.names(dpc))]),
     xend = mean(dpc$LD1[grep( "AAHH", row.names(dpc))]),
-    y=2.5, yend=2.5,
+    y=2.7, yend=2.7,
      size = 1.7, arrow = arrow(length = unit(0.2, "inches")),
     color="black") +
   theme_classic()+
@@ -566,7 +477,6 @@ a2 <- ggplot(dpc, aes(x=LD1, y=gp, fill=Treatment, shape=Line)) +
     axis.line.y=element_blank(),
     axis.ticks.y=element_blank(),
     axis.text.y=element_blank())
-#a2
 
 
 ### stats:
@@ -584,7 +494,7 @@ summary(mod1)
 posterior.mode(mod1$VCV)
 
 # $Sol is the posterior distribution of the fixed effect
-head(mod1$Sol)
+#head(mod1$Sol)
 
 HPDinterval(mod1$Sol)
 
@@ -599,25 +509,18 @@ if (is.na(table(awayDelta<0)[2])) {
   cat("p <",signif(1/length(awayDelta),1))
     } else { 
     cat("p =",signif(table(awayDelta<0)[2]/length(awayDelta),2)) 
-  } 
-# p = 0.98
+  } # 0.97
 
 
-###
-### save loadings
-###
 
-loadings.out <- data.frame(SNP = rownames(dds), 
-          LD1= dp.ctr$var.contr)
-write.table(file="~/reciprocal_t/analysis/GO_enrich/dge_contrib_F1.txt", loadings.out, sep="\t", 
-              row.names=FALSE, quote=FALSE)
-      
+###############################################################################################
+###############################################################################################
+######
+###### DGE F2
+######
+###############################################################################################
+###############################################################################################
 
-#####################################
-#
-# F2
-#
-#####################################
 
 #locate the directory containing the files. 
 dir <- "~/reciprocal_t/analysis/salmon"
@@ -656,7 +559,7 @@ files <- file.path(dir, samples$V1, "quant.sf")
 names(files) <- samples$V1
 all(file.exists(files))
 
-#subset files to only include F1 
+#subset files to only include F2
 files <- files[grep("F2", files)]
 
 gene_tran <- read.table("/data/atonsa/Atonsa_gen_trans_agp_gff/Atonsa_transcript_to_gene", header=FALSE)
@@ -676,18 +579,15 @@ sampleTable <- data.frame(
         Treatment = id$Treatment,
         Replicate = id$Replicate)
 
-# double check that the following agrees
 rownames(sampleTable) <- colnames(txi$counts)
 
 # setting this up, row info is each transcript/gene
   # columb is phenotypic data
-
 rownames(sampleTable) <- colnames(txi$counts)
 
-dds <- DESeqDataSetFromTximport(txi, 
-                colData=sampleTable, 
+dds <- DESeqDataSetFromTximport(txi,
+                colData=sampleTable,
                 design = ~ Line + Treatment + Line:Treatment)
-                      #Treatment:Line + Treatment*Line*Generation)
 
 # remove rows where count < 10 in more than 90% of samples
 keep <- apply(counts(dds), 1, function(x) {ifelse(length(which(x > 10)) > 13, TRUE, FALSE)})
@@ -696,23 +596,23 @@ nrow(dds)
 #[1] 24881
 
 # then rolog transform
-rld<-rlog(dds,blind=TRUE) #use blind=TRUE to not account for experimental design
+rld<-rlog(dds,blind=TRUE)
 head(assay(rld))
 
-dat=as.data.frame(assay(rld)) 
+dat=as.data.frame(assay(rld))
 colnames(dat)<-colnames(dds)
 
 
-#################### 
+####################
 #discriminant function analysis
 ####################
 
 ctr <-dat[,grep("AAAA|HHHH",colnames(dat))] # in home envir
 trt <-dat[,grep("AAHH|HHAA",colnames(dat))] # in away envir
 
-pcp=prcomp(t(ctr), retx=TRUE, center=TRUE, scale.=TRUE) #scale.=TRUE
+pcp=prcomp(t(ctr), retx=TRUE, center=TRUE, scale.=TRUE)
 scores=pcp$x
-#screeplot(pcp,bstick=T)
+screeplot(pcp,bstick=T)
 
 # adegenet: finding clusters (even though we know what clusters we want) - choose 7 PCs and 2 groups
 clus.ctr=find.clusters(t(ctr),max.n.clus=7,
@@ -726,29 +626,12 @@ clus.ctr$grp=c(rep(2, 4),
 dp.ctr=dapc(t(ctr),clus.ctr$grp,
         n.pca=3, n.da=2)  #keep 7 and 2
 
-#scatter(dp.ctr,bg="white",scree.da=FALSE,legend=TRUE,solid=.4) #discriminant function for ORIGIN type expression
+scatter(dp.ctr,bg="white",scree.da=FALSE,legend=TRUE,solid=.4) #discriminant function for ORIGIN type expression
 pred.trt<-predict.dapc(dp.ctr,newdata=(t(trt))) #skip IO11C for host b/c outlier sample in WGCNA
 
-#must create another dataframe structure in order to plot these predicted values
-test<-dp.ctr
-test$ind.coord<-pred.trt$ind.scores
-test$posterior<-pred.trt$posterior
-test$assign<-pred.trt$assign
-
-#assign groups
-#scatter(test,bg="white",scree.da=FALSE,legend=TRUE,solid=.4,ylim=c(0,0.6),xlim=c(-4,4),add.plot = TRUE) 
-
-dpc=data.frame(rbind(dp.ctr$ind.coord,pred.trt$ind.scores))
+dpc <- data.frame(rbind(dp.ctr$ind.coord,pred.trt$ind.scores))
 dpc$Line <- substr(row.names(dpc),3,4)
 dpc$Treatment <- substr(row.names(dpc),1,2)
-
-z <- ggplot(dpc, aes(x=LD1, fill=Line, color=Treatment, linetype=Treatment)) +
-  geom_density(alpha=0.4, lwd=1) +
-  scale_color_manual(values=c("dodgerblue2","firebrick2"))+
-  scale_fill_manual(values=c("dodgerblue2","firebrick2")) +
-  geom_hline(color = "white", yintercept = 0, lwd=2.5)
-#z
-
 dpc$gp <- c(rep(1.1,8), rep(1.9,4), rep(1.5,4))
 
 b2 <- ggplot(dpc, aes(x=LD1, y=gp, fill=Treatment, shape=Line)) +
@@ -762,13 +645,13 @@ b2 <- ggplot(dpc, aes(x=LD1, y=gp, fill=Treatment, shape=Line)) +
   geom_segment(
     x = mean(dpc$LD1[grep( "AAAA", row.names(dpc))]),
     xend = mean(dpc$LD1[grep( "HHAA", row.names(dpc))]),
-    y=2.3, yend=2.3,
+    y=2.5, yend=2.5,
      size = 1.7, arrow = arrow(length = unit(0.2, "inches")),
     color="black")+
   geom_segment(
     x = mean(dpc$LD1[grep( "HHHH", row.names(dpc))]),
     xend = mean(dpc$LD1[grep( "AAHH", row.names(dpc))]),
-    y=2.5, yend=2.5,
+    y=2.7, yend=2.7,
      size = 1.7, arrow = arrow(length = unit(0.2, "inches")),
     color="black")+
   theme_classic()+
@@ -780,9 +663,7 @@ b2 <- ggplot(dpc, aes(x=LD1, y=gp, fill=Treatment, shape=Line)) +
     axis.ticks.y=element_blank(),
     axis.text.y=element_blank())
 
-
 ### stats:
-
 dpc.all <- dpc
 dpc.all$rep <- substr(row.names(dpc.all), 9,13)
 
@@ -796,8 +677,7 @@ summary(mod1)
 posterior.mode(mod1$VCV)
 
 # $Sol is the posterior distribution of the fixed effect
-head(mod1$Sol)
-
+#head(mod1$Sol)
 HPDinterval(mod1$Sol)
 
 # calculating difference in magnitudes of orii:away and orio:away using sampled sets of parameters:
@@ -809,29 +689,17 @@ HPDinterval(awayDelta)
 
 if (is.na(table(awayDelta<0)[2])) {
   cat("p <",signif(1/length(awayDelta),1))
-    } else { 
-    cat("p =",signif(table(awayDelta<0)[2]/length(awayDelta),2)) 
-  } 
-#p = 0.82
+    } else {
+    cat("p =",signif(table(awayDelta<0)[2]/length(awayDelta),2))
+  } # 0.81
 
-###
-### save loadings
-###
-
-loadings.out <- data.frame(SNP = rownames(dds), 
-          LD1= dp.ctr$var.contr)
-write.table(file="~/reciprocal_t/analysis/GO_enrich/dge_contrib_F2.txt", loadings.out, sep="\t", 
-              row.names=FALSE, quote=FALSE)
-       
-
-
-##########################################################################
-##########################################################################
-#
-# F3
-#
-##########################################################################
-##########################################################################
+###############################################################################################
+###############################################################################################
+######
+###### DGE F3
+######
+###############################################################################################
+###############################################################################################
 
 samples <- read.table("~/reciprocal_t/analysis/sample_id.txt", header=FALSE)
 
@@ -842,9 +710,6 @@ all(file.exists(files))
 
 #subset files to only include F3
 files <- files[grep("F3", files)]
-
-# associate transcripts with gene ids
-# We first make a data.frame called tx2gene with two columns: 1) transcript ID and 2) gene ID. col order is important
 
 gene_tran <- read.table("/data/atonsa/Atonsa_gen_trans_agp_gff/Atonsa_transcript_to_gene", header=FALSE)
 
@@ -874,15 +739,9 @@ sampleTable <- data.frame(
 # double check that the following agrees
 rownames(sampleTable) <- colnames(txi$counts)
 
-# setting this up, row info is each transcript/gene
-  # columb is phenotypic data
-
-rownames(sampleTable) <- colnames(txi$counts)
-
 dds <- DESeqDataSetFromTximport(txi, 
                 colData=sampleTable, 
                 design = ~ Line + Treatment + Line:Treatment)
-                      #Treatment:Line + Treatment*Line*Generation)
 
 # remove rows where count < 10 in more than 90% of samples
 keep <- apply(counts(dds), 1, function(x) {ifelse(length(which(x > 10)) > 13, TRUE, FALSE)})
@@ -891,22 +750,21 @@ nrow(dds)
 #[1] 24131
 
 # then rolog transform
-rld<-rlog(dds,blind=TRUE) #use blind=TRUE to not account for experimental design
-head(assay(rld))
+rld<-rlog(dds,blind=TRUE)
 
-dat=as.data.frame(assay(rld)) 
+dat=as.data.frame(assay(rld))
 colnames(dat)<-colnames(dds)
 
-#################### 
+####################
 #discriminant function analysis
 ####################
 
 ctr <-dat[,grep("AAAA|HHHH",colnames(dat))] # in home envir
 trt <-dat[,grep("AAHH|HHAA",colnames(dat))] # in away envir
 
-pcp=prcomp(t(ctr), retx=TRUE, center=TRUE, scale.=TRUE) #scale.=TRUE
+pcp=prcomp(t(ctr), retx=TRUE, center=TRUE, scale.=TRUE)
 scores=pcp$x
-#screeplot(pcp,bstick=T)
+screeplot(pcp,bstick=T)
 
 # adegenet: finding clusters (even though we know what clusters we want) - choose 7 PCs and 2 groups
 clus.ctr=find.clusters(t(ctr),max.n.clus=7,
@@ -921,29 +779,13 @@ clus.ctr$grp=c(rep(2, 4),
 dp.ctr=dapc(t(ctr),clus.ctr$grp,
              n.pca=4, n.da=2)  #keep 7 and 2
 
-#scatter(dp.ctr,bg="white",scree.da=FALSE,legend=TRUE,solid=.4) #discriminant function for ORIGIN type expression
+scatter(dp.ctr,bg="white",scree.da=FALSE,legend=TRUE,solid=.4) #discriminant function for ORIGIN type expression
 pred.trt<-predict.dapc(dp.ctr,newdata=(t(trt))) #skip IO11C for host b/c outlier sample in WGCNA
 
-#must create another dataframe structure in order to plot these predicted values
-test<-dp.ctr
-test$ind.coord<-pred.trt$ind.scores
-test$posterior<-pred.trt$posterior
-test$assign<-pred.trt$assign
-
 #assign groups
-#scatter(test,bg="white",scree.da=FALSE,legend=TRUE,solid=.4,ylim=c(0,0.6),xlim=c(-4,4),add.plot = TRUE) 
-
 dpc=data.frame(rbind(dp.ctr$ind.coord,pred.trt$ind.scores))
 dpc$Line <- substr(row.names(dpc),3,4)
 dpc$Treatment <- substr(row.names(dpc),1,2)
-
-z <- ggplot(dpc, aes(x=LD1, fill=Line, color=Treatment, linetype=Treatment)) +
-  geom_density(alpha=0.4, lwd=1) +
-  scale_color_manual(values=c("dodgerblue2","firebrick2"))+
-  scale_fill_manual(values=c("dodgerblue2","firebrick2")) +
-  geom_hline(color = "white", yintercept = 0, lwd=2.5)
-#z
-
 dpc$gp <- c(rep(1.1,8), rep(1.9,4), rep(1.5,4))
 
 c2 <- ggplot(dpc, aes(x=LD1, y=gp, fill=Treatment, shape=Line)) +
@@ -974,9 +816,8 @@ c2 <- ggplot(dpc, aes(x=LD1, y=gp, fill=Treatment, shape=Line)) +
     axis.line.y=element_blank(),
     axis.ticks.y=element_blank(),
     axis.text.y=element_blank())
-#c
 
-png("~/reciprocal_t/figures/dapc_RNA_gen.png", height = 5, width = 5, units="in", res=300)
+png("~/reciprocal_t/figures/dapc_RNA_gen.png", height = 6, width = 5, units="in", res=300)
 ggarrange(a2,b2,c2, ncol=1, nrow=3, common.legend=TRUE)
 dev.off()
 
@@ -994,9 +835,6 @@ mod1=MCMCglmm(LD1~Line+Line:home, random=~rep, prior= prior, data=dpc.all,nitt=7
 summary(mod1)
 posterior.mode(mod1$VCV)
 
-# $Sol is the posterior distribution of the fixed effect
-head(mod1$Sol)
-
 HPDinterval(mod1$Sol)
 
 # calculating difference in magnitudes of orii:away and orio:away using sampled sets of parameters:
@@ -1008,27 +846,13 @@ HPDinterval(awayDelta)
 
 if (is.na(table(awayDelta<0)[2])) {
   cat("p <",signif(1/length(awayDelta),1))
-    } else { 
-    cat("p =",signif(table(awayDelta<0)[2]/length(awayDelta),2)) 
-  } 
-# p = 0.59
-
-###
-### save loadings
-###
-
-loadings.out <- data.frame(SNP = rownames(dds), 
-          LD1= dp.ctr$var.contr)
-write.table(file="~/reciprocal_t/analysis/GO_enrich/dge_contrib_F3.txt", loadings.out, sep="\t", 
-              row.names=FALSE, quote=FALSE)
-
+    } else {
+    cat("p =",signif(table(awayDelta<0)[2]/length(awayDelta),2))
+  } #0.61
 
 
 library("ggpubr")
 
-png("~/reciprocal_t/figures/dapc_all_gen.png", height = 6, width = 8, units="in", res=300)
-ggarrange(a1, a1, b1, b2, c1, c2, ncol=2, nrow=3, common.legend=TRUE)
+png("~/reciprocal_t/figures/dapc_all_gen1.png", height = 6, width = 8, units="in", res=300)
+ggarrange(a, a2, b, b2, c, c2, ncol=2, nrow=3, common.legend=TRUE)
 dev.off()
-
-
-
