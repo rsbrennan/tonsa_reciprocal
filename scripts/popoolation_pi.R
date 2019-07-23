@@ -1,4 +1,3 @@
-
 # FIgure 3, popoolation_pi.R
 
 library(stringr)
@@ -41,28 +40,6 @@ pops <- names(d)
 
 
 
-# anova
-
-fit <- aov(Heterozygosity ~ comb*Generation, data=het_mean)
-summary(fit)
-stat <- TukeyHSD(fit, "comb:Generation")$`comb:Generation`
-stat[which(stat[,4] < 0.1),]
-
-
-Median:
-                         diff          lwr           upr        p adj
-AAHH:F3-AAAA:F1 -0.0010340375 -0.002022648 -4.542737e-05 0.0336965744
-AAHH:F3-HHAA:F1 -0.0012388518 -0.002227462 -2.502416e-04 0.0048893903
-AAHH:F3-HHHH:F1 -0.0009475979 -0.001936208  4.101226e-05 0.0704417695
-AAHH:F3-AAHH:F1 -0.0010329975 -0.002021608 -4.438737e-05 0.0340079284
-AAHH:F3-AAAA:F2 -0.0010524880 -0.002041098 -6.387787e-05 0.0285891071
-HHHH:F3-HHAA:F2 -0.0010737177 -0.002062328 -8.510762e-05 0.0235986536
-AAHH:F3-HHAA:F2 -0.0015070006 -0.002495611 -5.183905e-04 0.0003114930
-AAHH:F3-AAHH:F2 -0.0011603133 -0.002148923 -1.717031e-04 0.0105064761
-AAHH:F3-AAAA:F3 -0.0010232169 -0.002011827 -3.460674e-05 0.0370670656
-HHHH:F3-HHAA:F3 -0.0011032079 -0.002091818 -1.145977e-04 0.0179969699
-AAHH:F3-HHAA:F3 -0.0015364907 -0.002525101 -5.478806e-04 0.0002282283
-
 ################
 ## plot mean het for each group. sep by treatments, etc.
 ################
@@ -82,6 +59,13 @@ for(i in 1:length(pops)){
 }
 
 het_mean$comb <- factor(het_mean$comb, levels = c("AAAA","HHAA", "HHHH", "AAHH"))
+
+# anova
+
+fit <- aov(Heterozygosity ~ comb*Generation, data=het_mean)
+summary(fit)
+stat <- TukeyHSD(fit, "comb:Generation")$`comb:Generation`
+stat[which(stat[,4] < 0.1),]
 
 
 totals <- het_mean %>%
@@ -115,9 +99,8 @@ scale_x_discrete(labels=c("AAAA" = "AM in AM",
 
 pb
 
-png("~/reciprocal_t/figures/Fig_4_pi.png", res=300, height=5, width=7, units="in")
+pdf("~/reciprocal_t/figures/Fig_4_pi.pdf", height=5, width=7)
 
 pb
 
 dev.off()
-
