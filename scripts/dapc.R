@@ -143,6 +143,15 @@ if (is.na(table(awayDelta<0)[2])) {
 } else { cat("p =",signif(table(awayDelta<0)[2]/length(awayDelta),2)) } 
 # p = 0.52
 
+###
+### save loadings
+###
+
+loadings.out <- data.frame(SNP = af$SNP, 
+          LD1= dp.ctr$var.contr)
+write.table(file="~/reciprocal_t/analysis/snp_contrib_F1.txt", loadings.out, sep="\t", 
+              row.names=FALSE, quote=FALSE)
+
 ###############################################################################################
 ###############################################################################################
 ######
@@ -167,10 +176,10 @@ clus.ctr$grp=c(rep(2, 4),
                 rep(1, 4)) #tell the DF which groups you want to cluster; in this case in2in and off2off
 # discriminant function for two groups:
 dp.ctr=dapc(t(ctr),clus.ctr$grp, var.loadings=TRUE, n.pca=3, n.da=1,
-var.contrib =TRUE) #keep 7 and 1
+    var.contrib =TRUE)
 scatter(dp.ctr,bg="white",scree.da=FALSE,legend=TRUE,solid=.4) 
 
-pred.trt<-predict.dapc(dp.ctr,newdata=(t(trt))) 
+pred.trt<-predict.dapc(dp.ctr,newdata=(t(trt)))
 
 #must create another dataframe structure in order to plot these predicted values
 dpc <- data.frame(rbind(dp.ctr$ind.coord,pred.trt$ind.scores))
@@ -235,6 +244,14 @@ if (is.na(table(awayDelta<0)[2])) {
 # p = 0.3
 
 
+###
+### save loadings
+###
+
+loadings.out <- data.frame(SNP = af$SNP, 
+          LD1= dp.ctr$var.contr)
+write.table(file="~/reciprocal_t/analysis/snp_contrib_F2.txt", loadings.out, sep="\t", 
+              row.names=FALSE, quote=FALSE)
 
 ###############################################################################################
 ###############################################################################################
@@ -322,10 +339,14 @@ if (is.na(table(awayDelta<0)[2])) {
 } else { cat("p =",signif(table(awayDelta<0)[2]/length(awayDelta),2)) } 
 # 0.018
 
+###
+### save loadings
+###
 
-png("~/reciprocal_t/figures/dapc_snps_gen.png", height = 6, width = 5, units="in", res=300)
-ggarrange(a,b,c, ncol=1, nrow=3, common.legend=TRUE)
-dev.off()
+loadings.out <- data.frame(SNP = af$SNP, 
+          LD1= dp.ctr$var.contr)
+write.table(file="~/reciprocal_t/analysis/snp_contrib_F3.txt", loadings.out, sep="\t", 
+              row.names=FALSE, quote=FALSE)
 
 ########################################################################################################
 ########################################################################################################
@@ -511,7 +532,14 @@ if (is.na(table(awayDelta<0)[2])) {
     cat("p =",signif(table(awayDelta<0)[2]/length(awayDelta),2)) 
   } # 0.97
 
+###
+### save loadings
+###
 
+loadings.out <- data.frame(SNP = rownames(dds), 
+          LD1= dp.ctr$var.contr)
+write.table(file="~/reciprocal_t/analysis/GO_enrich/dge_contrib_F1.txt", loadings.out, sep="\t", 
+              row.names=FALSE, quote=FALSE)
 
 ###############################################################################################
 ###############################################################################################
@@ -693,6 +721,15 @@ if (is.na(table(awayDelta<0)[2])) {
     cat("p =",signif(table(awayDelta<0)[2]/length(awayDelta),2))
   } # 0.81
 
+###
+### save loadings
+###
+
+loadings.out <- data.frame(SNP = rownames(dds), 
+          LD1= dp.ctr$var.contr)
+write.table(file="~/reciprocal_t/analysis/GO_enrich/dge_contrib_F2.txt", loadings.out, sep="\t", 
+              row.names=FALSE, quote=FALSE)
+
 ###############################################################################################
 ###############################################################################################
 ######
@@ -817,7 +854,7 @@ c2 <- ggplot(dpc, aes(x=LD1, y=gp, fill=Treatment, shape=Line)) +
     axis.ticks.y=element_blank(),
     axis.text.y=element_blank())
 
-png("~/reciprocal_t/figures/dapc_RNA_gen.png", height = 6, width = 5, units="in", res=300)
+pdf("~/reciprocal_t/figures/dapc_RNA_gen.pdf", height = 6, width = 5)
 ggarrange(a2,b2,c2, ncol=1, nrow=3, common.legend=TRUE)
 dev.off()
 
@@ -851,8 +888,17 @@ if (is.na(table(awayDelta<0)[2])) {
   } #0.61
 
 
+###
+### save loadings
+###
+
+loadings.out <- data.frame(SNP = rownames(dds), 
+          LD1= dp.ctr$var.contr)
+write.table(file="~/reciprocal_t/analysis/GO_enrich/dge_contrib_F3.txt", loadings.out, sep="\t", 
+              row.names=FALSE, quote=FALSE)
+
 library("ggpubr")
 
-png("~/reciprocal_t/figures/dapc_all_gen1.png", height = 6, width = 8, units="in", res=300)
+pdf("~/reciprocal_t/figures/dapc_all_gen.pdf", height = 6, width = 8)
 ggarrange(a, a2, b, b2, c, c2, ncol=2, nrow=3, common.legend=TRUE)
 dev.off()

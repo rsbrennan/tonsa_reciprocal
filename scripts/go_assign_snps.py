@@ -68,7 +68,7 @@ go_df = np.empty(shape=(num_lines,2), dtype = object)
 
 ict=0 # start counter
 
-with open('/users/r/b/rbrennan/reciprocal_t/analysis/GO_enrich/snp_meanContrib_F1.txt') as master_file:
+with open('/users/r/b/rbrennan/reciprocal_t/analysis/GO_enrich/snp_meanContrib_F2.txt') as master_file:
         head1 = next(master_file)
         for idx, line in enumerate(master_file):
             tmp_gene = line.split(",")[0]
@@ -114,7 +114,7 @@ go_df = np.empty(shape=(num_lines,2), dtype = object)
 
 ict=0 # start counter
 
-with open('/users/r/b/rbrennan/reciprocal_t/analysis/GO_enrich/snp_meanContrib_F1.txt') as master_file:
+with open('/users/r/b/rbrennan/reciprocal_t/analysis/GO_enrich/snp_meanContrib_F3.txt') as master_file:
         head1 = next(master_file)
         for idx, line in enumerate(master_file):
             tmp_gene = line.split(",")[0]
