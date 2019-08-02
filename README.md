@@ -42,7 +42,6 @@ Below are scripts to run the full analysis for the manuscript. A short descripti
   - `14b_go_assign_snps.py`, `14b_go_assign_dge.py` produces `dge_F1_GOterms.out` `snp_F1_GOterms.out`, for each generation.
   - `14c_GO_format.sh`there are some weird formatting issues (some quotes?) that were just easier to fix with bash
   - `14d_GO_MWU.R` run the actual GO enrichment
-- Calculate the change in pi, Figure 4:  `15_delta_pi.R`
 
 
 ## Figures:
