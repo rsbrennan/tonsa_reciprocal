@@ -32,12 +32,25 @@ Below are scripts to run the full analysis for the manuscript. A short descripti
 
 ### Analysis
 
+- calulate pi and look at the loss: 
+  - `10a_popoolation.sh`, `10b_popoolation_pi.R`
+- run the DAPC: `11_dapc.R`
+- Run the CMH, output allele freq changes: `12_snp_analysis.R`
+- Generate the scatter plot for Figure 3: `13_scatter_plot.R`
+- GO analysis
+  - `14a_loadings_for_GO.R` produces formatted snp output, `from DAPC.R`
+  - `14b_go_assign_snps.py`, `14b_go_assign_dge.py` produces `dge_F1_GOterms.out` `snp_F1_GOterms.out`, for each generation.
+  - `14c_GO_format.sh`there are some weird formatting issues (some quotes?) that were just easier to fix with bash
+  - `14d_GO_MWU.R` run the actual GO enrichment
+- Calculate the change in pi, Figure 4:  `15_delta_pi.R`
+
+
 ## Figures:
 
-Fig. 1:  
-Fig. 2:  
-Fig. 3:
-Fig. 4:
-Fig. S1: 
+Fig. 1: `Fig1_pca.R`  
+Fig. 2: `11_dapc.R`
+Fig. 3: `13_scatter_plot.R`
+Fig. 4: `10b_popoolation_pi.R`
+Fig. S1: `Fig_S1.R`
 
 
