@@ -191,7 +191,6 @@ AAHH_r4 <- AAHH_r4[!is.na(AAHH_r4$pi.AAHH_r4),]
 all.HHAA <- merge(merge(merge(HHAA_r1, HHAA_r2, by="snp"),HHAA_r3, by="snp"),HHAA_r4, by="snp")
 all.AAHH <- merge(merge(merge(AAHH_r1,AAHH_r2, by="snp"),AAHH_r3, by="snp"),AAHH_r4, by="snp")
 
-#all.m <- merge(merge(merge(all.HHAA, all.AAHH, by="snp", all=T),all.AAAA, by="snp", all=T), all.HHHH, by="snp", all=T)
 all.m <- merge(all.HHAA, all.AAHH, by="snp")
 
 nrow(all.m)
@@ -242,7 +241,6 @@ deltapi <-
   dplyr::summarise(mean_pi = mean(value, ignore.na=TRUE))
 
 # remember that dat contains the overlaps.
-    # so could merge deltapi with dat to see significance
 
 overlap <- (merge(x=deltapi, y=dat, by.x="snp", by.y="pi_snp", all.x=TRUE))
 # messy, columns that are carried over. remove them
@@ -270,7 +268,6 @@ c <- ggplot(deduped.data, aes(x=gp, y=mean_pi, color=sig, group=sig)) +
      xlab("")+
      ylab(expression(paste("Mean change in ",pi))) +
      theme(axis.title.y=element_text(size=14))
-    # ylab(expression(paste("Mean loss of  ",pi, "\n(100 bp windows")))
 
 ggsave("~/reciprocal_t/figures/delta_pi.png",
         plot =ggarrange(pb, c, widths = c(2,1.3), ncol=2, nrow=1, labels="AUTO"), 
