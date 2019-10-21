@@ -43,6 +43,7 @@ Below are scripts to run the full analysis for the manuscript. A short descripti
   - `14c_GO_format.sh`there are some weird formatting issues (some quotes?) that were just easier to fix with bash
   - `14d_GO_MWU.R` run the actual GO enrichment
   - `14e_go_enrich_deltapi.md` run go enrichment for the change in pi
+- log-rank survivorship, egg production and fecundity calculations, malthusian parameter calculations: `15_Phenotype_data_analysis.R`
 
 ## Figures:
 
