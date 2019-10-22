@@ -48,8 +48,7 @@ Below are scripts to run the full analysis for the manuscript. A short descripti
 ## Figures:
 
 Fig. 1: `Fig1_pca.R`  
-Fig. 2: `15_Phenotype_data_analysis.R`
-
+Fig. 2: `15_Phenotype_data_analysis.R`  
 Fig. 3: `13_scatter_plot.R`  
 Fig. 4: `10b_popoolation_pi.R`  
 Fig. S1: `Fig_S1.R`  
