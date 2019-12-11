@@ -460,6 +460,75 @@ malthusian.pairwise <- pairwise.t.test(lambda.results.no.starve$Malthusian, lamb
 # Two-way ANOVA
 malthusian.model <- aov(Malthusian~Treatment*Food, data=lambda.results.no.starve)
 
+##### Malthusian point plot #####
+
+
+lambda.list.mean <- lambda.results %>%
+  group_by(Treatment, Food) %>%
+  summarise(mean = mean(Malthusian, na.rm = TRUE),
+            sd = sd(Malthusian, na.rm = TRUE),
+            n = n()) %>%
+  mutate(se = sd/sqrt(n),
+         lower.ci = mean - qt(1 - (0.05 / 2), n-1)*se,
+         upper.ci = mean + qt(1 - (0.05 / 2), n-1)*se)
+
+
+
+lambda.list.mean$Line <- case_when(lambda.list.mean$Treatment == 1 ~ "AM",
+                                           lambda.list.mean$Treatment == 4 ~ "GH",
+                                           lambda.list.mean$Treatment == 5 ~ "GH",
+                                           lambda.list.mean$Treatment == 6 ~ "AM")
+
+lambda.list.mean$Treatment2 <- case_when(lambda.list.mean$Treatment == 1 ~ "AM",
+                                                lambda.list.mean$Treatment == 4 ~ "GH",
+                                                lambda.list.mean$Treatment == 5 ~ "AM",
+                                                lambda.list.mean$Treatment == 6 ~ "GH")
+
+
+lambda.list.mean$Order <- case_when(lambda.list.mean$Treatment == 1 ~ "A",
+                                            lambda.list.mean$Treatment == 4 ~ "C",
+                                            lambda.list.mean$Treatment == 5 ~ "D",
+                                            lambda.list.mean$Treatment == 6 ~ "B")
+
+font.size <- 48
+
+lambda.list.mean$Food<- as.factor(lambda.list.mean$Food)
+
+Malthusian.point.plot <- ggplot(data = lambda.list.mean, aes(x=Food, 
+                                                                  y=mean, 
+                                                                  color = factor(Treatment2), 
+                                                                  shape = factor(Line), 
+                                                                  group = paste(Food, Order)))+
+  
+  geom_errorbar(aes(ymin=lower.ci, ymax=upper.ci), colour = "black", size=2, width = 0.4, position = position_dodge(width = 0.68))+
+  geom_point(position = position_dodge(width = 0.68), size = 13.5)+
+  
+  scale_shape_manual(name = "Line",
+                     values = c(16, 17))+
+  
+  scale_color_manual(name = "Treatment",
+                     values = c("cornflowerblue", "brown2"))+
+  
+  scale_x_discrete(limits = c("800", "250"))+
+  
+  theme_classic()+
+  theme(legend.text.align = 0,
+        legend.text = element_text(size = font.size),
+        legend.title = element_text(size = font.size),
+        axis.title.x = element_text(size = font.size),
+        axis.title.y = element_text(size = font.size),
+        axis.text.x = element_text(size = font.size, colour = "black"),
+        axis.text.y = element_text(size = font.size, colour = "black"),
+        legend.position = "bottom")+
+  xlab(expression ("Food Concentration ("*mu*"g C/L)"))+
+  ylab(expression (atop("Malthusian Parameter",(generation^-1))))
+
+
+
+Malthusian.point.plot
+
+# save with appropriate dimensions
+ggsave(filename = "Malthusian.point.plot.tall3.pdf", Malthusian.point.plot, height = 8.5*aspect.ratio, width = 8.5, units = "in", device = "pdf")
 
 
 
