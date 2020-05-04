@@ -16,13 +16,13 @@ print("Starting DGE go assignments")
 ####
 
 #make empty array
-num_lines = sum(1 for line in open('/users/r/b/rbrennan/reciprocal_t/analysis/GO_enrich/dge_contrib_F1.txt'))-1
+num_lines = sum(1 for line in open('/users/r/b/rbrennan/reciprocal_t/analysis/GO_enrich/dge_f1.txt'))-1
 
 go_df = np.empty(shape=(num_lines,2), dtype = object)
 
 ict=0 # start counter
 
-with open('/users/r/b/rbrennan/reciprocal_t/analysis/GO_enrich/dge_contrib_F1.txt') as master_file:
+with open('/users/r/b/rbrennan/reciprocal_t/analysis/GO_enrich/dge_f1.txt') as master_file:
         head1 = next(master_file)
         for idx, line in enumerate(master_file):
             tmp_gene = line.split("\t")[0]
@@ -62,13 +62,13 @@ print("F1 saved")
 ####
 
 #make empty array
-num_lines = sum(1 for line in open('/users/r/b/rbrennan/reciprocal_t/analysis/GO_enrich/dge_contrib_F2.txt'))-1
+num_lines = sum(1 for line in open('/users/r/b/rbrennan/reciprocal_t/analysis/GO_enrich/dge_f2.txt'))-1
 
 go_df = np.empty(shape=(num_lines,2), dtype = object)
 
 ict=0 # start counter
 
-with open('/users/r/b/rbrennan/reciprocal_t/analysis/GO_enrich/dge_contrib_F2.txt') as master_file:
+with open('/users/r/b/rbrennan/reciprocal_t/analysis/GO_enrich/dge_f2.txt') as master_file:
         head1 = next(master_file)
         for idx, line in enumerate(master_file):
             tmp_gene = line.split("\t")[0]
@@ -108,13 +108,13 @@ print("F2 saved")
 ####
 
 #make empty array
-num_lines = sum(1 for line in open('/users/r/b/rbrennan/reciprocal_t/analysis/GO_enrich/dge_contrib_F3.txt'))-1
+num_lines = sum(1 for line in open('/users/r/b/rbrennan/reciprocal_t/analysis/GO_enrich/dge_f3.txt'))-1
 
 go_df = np.empty(shape=(num_lines,2), dtype = object)
 
 ict=0 # start counter
 
-with open('/users/r/b/rbrennan/reciprocal_t/analysis/GO_enrich/dge_contrib_F3.txt') as master_file:
+with open('/users/r/b/rbrennan/reciprocal_t/analysis/GO_enrich/dge_f3.txt') as master_file:
         head1 = next(master_file)
         for idx, line in enumerate(master_file):
             tmp_gene = line.split("\t")[0]

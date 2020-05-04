@@ -2,7 +2,6 @@
 # script for correlation plots for DGE
 ## this plots vertical, not horizontal
 
-library(tximportData)
 library(tximport)
 library(DESeq2)
 library(dplyr)
@@ -10,6 +9,7 @@ library(tidyr)
 library(ggplot2)
 library(scales)
 library(ggpubr)
+library(scales)
 
 # running gene expression data first here:
 
@@ -26,7 +26,7 @@ names(all_files) <- samples$V1
 
 # associate transcripts with gene ids
 # make a data.frame called tx2gene with two columns: 1) transcript ID and 2) gene ID. col order is important
-gene_tran <- read.table("/data/atonsa/Atonsa_gen_trans_agp_gff/Atonsa_transcript_to_gene", header=FALSE)
+gene_tran <- read.table("/data/copepods/tonsa_transcriptome/Atonsa_gen_trans_agp_gff/Atonsa_transcript_to_gene", header=FALSE)
 # then convert
 tx2gene <- data.frame(transcript=gene_tran$V2, gene=gene_tran$V1)
 
@@ -675,46 +675,15 @@ prop.test(c(nrow(Adapt_f3_AA),nrow(Adapt_f1_AA)),
 #
 ####
 
-f1_AA_out <- f1_AA_out[,c(1,3,7,9,13)]
-colnames(f1_AA_out) <- c("gene", "log2FoldChange_AAAAvsHHAA_F1",
-                                "padj_AAAAvsHHAA_F1", "log2FoldChange_AAAAvsHHHH_F1",
-                                "padj_AAAAvsHHHH_F1")
-
-f2_AA_out <- f2_AA_out[,c(1,3,7,9,13)]
-colnames(f2_AA_out) <- c("gene", "log2FoldChange_AAAAvsHHAA_F2",
-                                "padj_AAAAvsHHAA_F2", "log2FoldChange_AAAAvsHHHH_F2",
-                                "padj_AAAAvsHHHH_F2")
-
-f3_AA_out <- f3_AA_out[,c(1,3,7,9,13)]
-colnames(f3_AA_out) <- c("gene", "log2FoldChange_AAAAvsHHAA_F1",
-                                "padj_AAAAvsHHAA_F3", "log2FoldChange_AAAAvsHHHH_F3",
-                                "padj_AAAAvsHHHH_F3")
-
-f1_HH_out <- f1_HH_out[,c(1,3,7,9,13)]
-colnames(f1_HH_out) <- c("gene", "log2FoldChange_HHHHvsAAHH_F1",
-                                "padj_HHHHvsAAHH_F1", "log2FoldChange_HHHHvsAAAA_F1",
-                                "padj_HHHHvsAAHH_F1")
-
-f2_HH_out <- f2_HH_out[,c(1,3,7,9,13)]
-colnames(f2_HH_out) <- c("gene", "log2FoldChange_HHHHvsAAHH_F2",
-                                "padj_HHHHvsAAHH_F2", "log2FoldChange_HHHHvsAAAA_F2",
-                                "padj_HHHHvsAAAA_F2")
-
-f3_HH_out <- f3_HH_out[,c(1,3,7,9,13)]
-colnames(f3_HH_out) <- c("gene", "log2FoldChange_HHHHvsAAHH_F3",
-                                "padj_HHHHvsAAHH_F3", "log2FoldChange_HHHHvsAAAA_F3",
-                                "padj_HHHHvsAAAA_F3")
-
-
-write.table(as.data.frame(f1_HH_out), file="~/reciprocal_t/analysis/dge_HH_f1.txt",sep="\t", quote=FALSE)
-write.table(as.data.frame(f2_HH_out), file="~/reciprocal_t/analysis/dge_HH_f2.txt",sep="\t", quote=FALSE)
-write.table(as.data.frame(f3_HH_out), file="~/reciprocal_t/analysis/dge_HH_f3.txt",sep="\t", quote=FALSE)
-
-write.table(as.data.frame(f1_AA_out), file="~/reciprocal_t/analysis/dge_AA_f1.txt",sep="\t", quote=FALSE)
-write.table(as.data.frame(f2_AA_out), file="~/reciprocal_t/analysis/dge_AA_f2.txt",sep="\t", quote=FALSE)
-write.table(as.data.frame(f3_AA_out), file="~/reciprocal_t/analysis/dge_AA_f3.txt",sep="\t", quote=FALSE)
-
-
+write.table(data.frame(x=row.names(as.data.frame(res_HHHHvsAAAA_f1)), y=-log10(as.data.frame(res_HHHHvsAAAA_f1)[,5])), 
+    file="~/reciprocal_t/analysis/GO_enrich/dge_f1.txt",
+    sep=",", quote=FALSE, col.names=F, row.names=F)
+write.table(data.frame(x=row.names(as.data.frame(res_HHHHvsAAAA_f2)), y=-log10(as.data.frame(res_HHHHvsAAAA_f2)[,5])), 
+    file="~/reciprocal_t/analysis/GO_enrich/dge_f2.txt",
+    sep=",", quote=FALSE, col.names=F, row.names=F)
+write.table(data.frame(x=row.names(as.data.frame(res_HHHHvsAAAA_f3)), y=-log10(as.data.frame(res_HHHHvsAAAA_f3)[,5])), 
+    file="~/reciprocal_t/analysis/GO_enrich/dge_f3.txt",
+    sep=",", quote=FALSE, col.names=F, row.names=F)
 
 ############################################
 #
@@ -1000,4 +969,79 @@ prop.test(c(length(Adapt_AA_f2),length(Adapt_AA_f3)),
             sum(length(nonAdapt_AA_f3), length(Adapt_AA_f3))
             ),correct=FALSE)
 # X-squared = 7.8106, df = 1, p-value = 0.005194
+
+####################################
+####################################
+#
+# compare cmh and dge changes
+#
+####################################
+####################################
+
+
+all_out$CHR <- sapply(strsplit(as.character(all_out$SNP), ":"), `[`, 1)
+
+HHHHvsAAAA_f1 <- as.data.frame(res_HHHHvsAAAA_f1)
+HHHHvsAAAA_f1$CHR <- row.names(HHHHvsAAAA_f1)
+f1 <- merge(all_out, HHHHvsAAAA_f1, by="CHR", all=F)
+
+f1$pvalue <- -log10(f1$pvalue)
+f1$pval_f1 <- -log10(f1$pval_f1)
+f1 <- (f1[which(!is.na(f1$pval_f1)),])
+
+HHHHvsAAAA_f2 <- as.data.frame(res_HHHHvsAAAA_f2)
+HHHHvsAAAA_f2$CHR <- row.names(HHHHvsAAAA_f2)
+f2 <- merge(all_out, HHHHvsAAAA_f2, by="CHR")
+f2$pvalue <- -log10(f2$pvalue)
+f2$pval_f2 <- -log10(f2$pval_f2)
+f2 <- (f2[which(!is.na(f2$pval_f2)),])
+f2 <- (f2[which(is.finite(f2$pval_f2)),])
+
+HHHHvsAAAA_f3 <- as.data.frame(res_HHHHvsAAAA_f3)
+HHHHvsAAAA_f3$CHR <- row.names(HHHHvsAAAA_f3)
+f3 <- merge(all_out, HHHHvsAAAA_f3, by="CHR")
+
+f3$pvalue <- -log10(f3$pvalue)
+f3$pval_f3 <- -log10(f3$pval_f3)
+f3 <- (f3[which(!is.na(f3$pval_f3)),])
+f3 <- (f3[which(is.finite(f3$pval_f3)),])
+
+res_HHHHvsAAAA_f1
+res_HHHHvsAAAA_f2
+res_HHHHvsAAAA_f3
+
+# look for the correlation between dge and af change. Does one drive the other?
+png("~/reciprocal_t/figures/dge_af_cor.png", height = 2.5, width = 9, units="in", res=300)
+
+par(mfrow = c(1, 3),mar = c(5, 5, 2, 3))
+
+plot(x= (f1$pval_f1), y=(f1$pvalue),
+    ylab = c("Gene expression: -log10(pvalue)"),
+    xlab = c("Allele freq. change: -log10(pvalue)"),
+    main = c("F1; R-sq = 0.001"),
+    pch=19, col=alpha("black", 0.1))
+
+summary(lm(f1$pvalue ~ f1$pval_f1))
+# slope = 0.0042087
+# rsq = 0.001024
+
+plot(x= (f2$pval_f2), y=(f2$pvalue),
+    ylab = c("Gene expression: -log10(pvalue)"),
+    xlab = c("Allele freq. change: -log10(pvalue)"),
+    main = c("F2; R-sq = 0.0001"),
+    pch=19, col=alpha("black", 0.1))
+summary(lm(f2$pvalue ~ f2$pval_f2, na.action = na.exclude))
+# slope = 0.0010405
+# rsq = 0.0001274
+
+plot(x= f3$pval_f3, y=f3$pvalue,
+    ylab = c("Gene expression: -log10(pvalue)"),
+    xlab = c("Allele freq. change: -log10(pvalue)"),
+    main = c("F3; R-sq = 0.002"),
+    pch=19, col=alpha("black", 0.1))
+summary(lm((f3$pvalue) ~ (f3$pval_f3)))
+# slope = 0.0036867
+# rsq = 0.001542
+dev.off()
+
 
