@@ -444,4 +444,3 @@ png("~/reciprocal_t/figures/pca_SNP_PC3_4.png", res=300, height=4, width=11, uni
 ggarrange(d2, e2, f2, nrow = 1, ncol=3, common.legend=TRUE)
 
 dev.off()
-
