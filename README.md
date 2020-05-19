@@ -38,19 +38,18 @@ Below are scripts to run the full analysis for the manuscript. A short descripti
 - Run the CMH, output allele freq changes: `12_snp_analysis.R`
 - Generate the scatter plot for Figure 3: `13_scatter_plot.R`
 - GO analysis
-  - `14a_loadings_for_GO.R` produces formatted snp output, `from DAPC.R`
-  - `14b_go_assign_snps.py`, `14b_go_assign_dge.py` produces `dge_F1_GOterms.out` `snp_F1_GOterms.out`, for each generation.
+  - formatted output for DGE is from `13_scatter_plot.R`: "~/reciprocal_t/analysis/GO_enrich/dge_f1.txt"
+  - `14b_go_assign_snps.py`, `14b_go_assign_dge.py` produces `dge_F1_GOterms.out` `snp_GOterms.out`, for each generation.
   - `14c_GO_format.sh`there are some weird formatting issues (some quotes?) that were just easier to fix with bash
-  - `14d_GO_MWU.R` run the actual GO enrichment
+  - `14d_GO_Enrich_DGE.R` and `14d_GO_Enrich_SNP.R` run the actual GO enrichment for expression and snps, respectively
   - `14e_go_enrich_deltapi.md` run go enrichment for the change in pi
-- log-rank survivorship, egg production and fecundity calculations, malthusian parameter calculations: `15_Phenotype_data_analysis.R`
 
 ## Figures:
 
-Fig. 1: `Fig1_pca.R`  
-Fig. 2: `15_Phenotype_data_analysis.R`  
+Fig. 1:
+Fig. 2: 
 Fig. 3: `13_scatter_plot.R`  
 Fig. 4: `10b_popoolation_pi.R`  
 Fig. S1: `Fig_S1.R`  
-Fig. S2: `11_dapc.R`  
 
+Supp figs: `Fig_pca.R`
