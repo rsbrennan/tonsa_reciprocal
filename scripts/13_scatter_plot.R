@@ -13,7 +13,7 @@ library(scales)
 
 # running gene expression data first here:
 
-#locate the directory containing the files. 
+#locate the directory containing the files.
 dir <- "~/reciprocal_t/analysis/salmon"
 list.files(dir)
 
@@ -64,8 +64,8 @@ sampleTable <- data.frame(
 rownames(sampleTable) <- colnames(txi$counts)
 
 # convert to DEseq
-dds <- DESeqDataSetFromTximport(txi, 
-                colData=sampleTable, 
+dds <- DESeqDataSetFromTximport(txi,
+                colData=sampleTable,
                 design = ~ Line + Treatment + Line:Treatment)
                       #Treatment:Line + Treatment*Line*Generation)
 
@@ -87,7 +87,7 @@ write.table(dat_f1, file="~/reciprocal_t/analysis/F1_rlog_counts.txt", sep="\t",
 #### run DEseq
 ##########################
 
-# change levels. so I know what the reference level is. 
+# change levels. so I know what the reference level is.
 dds$Treatment <- relevel(dds$Treatment, ref = "AA")
 dds$Line <- relevel(dds$Line, ref = "AA")
 dds$group <- factor(paste0(dds$Treatment, dds$Line))
@@ -154,7 +154,7 @@ rld_f2<-rlog(dds,blind=TRUE) #use blind=TRUE to not account for experimental des
 dat_f2=as.data.frame(assay(rld_f2))
 colnames(dat_f2)<-colnames(dds)
 
-write.table(dat_f2, file="~/reciprocal_t/analysis/F2_rlog_counts.txt", sep="\t", quote=FALSE) 
+write.table(dat_f2, file="~/reciprocal_t/analysis/F2_rlog_counts.txt", sep="\t", quote=FALSE)
 
 ##########################
 #### run DEseq
@@ -210,8 +210,8 @@ sampleTable <- data.frame(
 rownames(sampleTable) <- colnames(txi$counts)
 
 # convert to DEseq
-dds <- DESeqDataSetFromTximport(txi, 
-                colData=sampleTable, 
+dds <- DESeqDataSetFromTximport(txi,
+                colData=sampleTable,
                 design = ~ Line + Treatment + Line:Treatment)
 
 # remove rows where count < 10 in more than 90% of samples
@@ -223,16 +223,16 @@ nrow(dds)
 # then rlog transform
 rld_f3<-rlog(dds,blind=TRUE) #use blind=TRUE to not account for experimental design
 
-dat_f3=as.data.frame(assay(rld_f3)) 
+dat_f3=as.data.frame(assay(rld_f3))
 colnames(dat_f3)<-colnames(dds)
 
-write.table(dat_f3, file="~/reciprocal_t/analysis/F3_rlog_counts.txt", sep="\t", quote=FALSE) 
+write.table(dat_f3, file="~/reciprocal_t/analysis/F3_rlog_counts.txt", sep="\t", quote=FALSE)
 
 ##########################
 #### run DEseq
 ##########################
 
-# change levels. so I know what the reference level is. 
+# change levels. so I know what the reference level is.
 dds$Treatment <- relevel(dds$Treatment, ref = "AA")
 dds$Line <- relevel(dds$Line, ref = "AA")
 dds$group <- factor(paste0(dds$Treatment, dds$Line))
@@ -386,7 +386,7 @@ f3_HH_out <- (merge(as.data.frame(res_HHHHvsAAHH_f3), as.data.frame(res_HHHHvsAA
 ####################################
 ######  Plotting
 ####################################
-######################################################################## 
+########################################################################
 
 pdf("~/reciprocal_t/figures/DGE_AM.pdf", height = 3.75, width = 1.75)
 
@@ -396,17 +396,17 @@ par(mar = c(0, 3.7, 0, 0), oma = c(3.8, 0, 0.5, 0.9))
 par(tcl = -0.25)
 par(mgp = c(1.5, 0.3, 0))
 
-plot(x= f1_AA_plasticity$log2FoldChange_HHHHvsAAAA, 
+plot(x= f1_AA_plasticity$log2FoldChange_HHHHvsAAAA,
     y=f1_AA_plasticity$log2FoldChange_AAAAvsHHAA,
-    ylab="", 
+    ylab="",
     xlab= "",
-    col=alpha("black", 0.4), bg=alpha("gray38", 1), pch=21, 
+    col=alpha("black", 0.4), bg=alpha("gray38", 1), pch=21,
     ylim=c(-6.5, 6.5), xlim=c(-9, 9),
     cex.lab=1, cex.main=1.4, cex=1.2, xaxt='n', yaxt='n')
 axis(2, at=c(-6, -3, 0, 3, 6), cex.axis=0.8)
 
 nonAdapt_f1_AA <- f1_AA_plasticity[which(
-    (f1_AA_plasticity$log2FoldChange_AAAAvsHHAA > 0 & f1_AA_plasticity$log2FoldChange_HHHHvsAAAA < 0) | 
+    (f1_AA_plasticity$log2FoldChange_AAAAvsHHAA > 0 & f1_AA_plasticity$log2FoldChange_HHHHvsAAAA < 0) |
     (f1_AA_plasticity$log2FoldChange_AAAAvsHHAA < 0 & f1_AA_plasticity$log2FoldChange_HHHHvsAAAA > 0)),]
 points(x= nonAdapt_f1_AA$log2FoldChange_HHHHvsAAAA, y=nonAdapt_f1_AA$log2FoldChange_AAAAvsHHAA,
     col=alpha("black", 0.4), bg=alpha("gray86", 1), pch=21, cex=1.2)
@@ -417,12 +417,12 @@ Adapt_f1_AA <- f1_AA_plasticity[which(
 abline(0,1, col="gray24", lty=2, lwd=2)
 abline(h=0, col="gray24", lty=1, lwd=1)
 abline(v=0, col="gray24", lty=1, lwd=1)
-abline(lm(f1_AA_plasticity$log2FoldChange_AAAAvsHHAA ~ f1_AA_plasticity$log2FoldChange_HHHHvsAAAA), 
+abline(lm(f1_AA_plasticity$log2FoldChange_AAAAvsHHAA ~ f1_AA_plasticity$log2FoldChange_HHHHvsAAAA),
 col="firebrick3", lwd=1.5)
 
 #summary(lm(f1_AA_plasticity$log2FoldChange_AAAAvsHHAA ~ f1_AA_plasticity$log2FoldChange_HHHHvsAAAA))
 
-corval <- round(cor.test(f1_AA_plasticity$log2FoldChange_HHHHvsAAAA,f1_AA_plasticity$log2FoldChange_AAAAvsHHAA, 
+corval <- round(cor.test(f1_AA_plasticity$log2FoldChange_HHHHvsAAAA,f1_AA_plasticity$log2FoldChange_AAAAvsHHAA,
     method="pearson")$estimate, 2)
 text(x=-5, y=4, bquote(rho == .(corval)), cex=1.2)
 
@@ -430,15 +430,15 @@ text(x=-5, y=4, bquote(rho == .(corval)), cex=1.2)
 # AA f2
 
 plot(x= f2_AA_plasticity$log2FoldChange_HHHHvsAAAA, y=f2_AA_plasticity$log2FoldChange_AAAAvsHHAA,
-    ylab="", 
+    ylab="",
     xlab= "",
-    col=alpha("black", 0.4), bg=alpha("gray38", 1), pch=21, 
+    col=alpha("black", 0.4), bg=alpha("gray38", 1), pch=21,
     ylim=c(-6.5, 6.5), xlim=c(-9, 9),
     cex.lab=1, cex.main=1.4, cex=1.2, xaxt='n', yaxt='n')
 axis(2, at=c(-6, -3, 0, 3, 6), cex.axis=0.8)
 
 nonAdapt_f2_AA <- f2_AA_plasticity[which(
-    (f2_AA_plasticity$log2FoldChange_AAAAvsHHAA > 0 & f2_AA_plasticity$log2FoldChange_HHHHvsAAAA < 0) | 
+    (f2_AA_plasticity$log2FoldChange_AAAAvsHHAA > 0 & f2_AA_plasticity$log2FoldChange_HHHHvsAAAA < 0) |
     (f2_AA_plasticity$log2FoldChange_AAAAvsHHAA < 0 & f2_AA_plasticity$log2FoldChange_HHHHvsAAAA > 0)),]
 points(x= nonAdapt_f2_AA$log2FoldChange_HHHHvsAAAA, y=nonAdapt_f2_AA$log2FoldChange_AAAAvsHHAA,
     col=alpha("black", 0.4), bg=alpha("gray86", 1), pch=21, cex=1.2)
@@ -450,12 +450,12 @@ Adapt_f2_AA <- f2_AA_plasticity[which(
 abline(0,1, col="gray24", lty=2, lwd=2)
 abline(h=0, col="gray24", lty=1, lwd=1)
 abline(v=0, col="gray24", lty=1, lwd=1)
-abline(lm(f2_AA_plasticity$log2FoldChange_AAAAvsHHAA~ f2_AA_plasticity$log2FoldChange_HHHHvsAAAA), 
+abline(lm(f2_AA_plasticity$log2FoldChange_AAAAvsHHAA~ f2_AA_plasticity$log2FoldChange_HHHHvsAAAA),
     col="firebrick3", lwd=1.5)
 
 #summary(lm(f2_AA_plasticity$log2FoldChange_AAAAvsHHAA~ f2_AA_plasticity$log2FoldChange_HHHHvsAAAA))
 
-corval <- round(cor.test(f2_AA_plasticity$log2FoldChange_HHHHvsAAAA,f2_AA_plasticity$log2FoldChange_AAAAvsHHAA, 
+corval <- round(cor.test(f2_AA_plasticity$log2FoldChange_HHHHvsAAAA,f2_AA_plasticity$log2FoldChange_AAAAvsHHAA,
     method="pearson")$estimate, 2)
 text(x=-5, y=4, bquote(rho == .(corval)), cex=1.2)
 
@@ -468,16 +468,16 @@ mtext(text = "Plastic change in expression\nlog2 fold change: AM_in_GH/AM",
 # AA f3
 
 plot(x= f3_AA_plasticity$log2FoldChange_HHHHvsAAAA, y=f3_AA_plasticity$log2FoldChange_AAAAvsHHAA,
-    ylab="", 
+    ylab="",
     xlab= "",
-    col=alpha("black", 0.4), bg=alpha("gray38", 1), pch=21, 
+    col=alpha("black", 0.4), bg=alpha("gray38", 1), pch=21,
     ylim=c(-6.5, 6.5), xlim=c(-9, 9),
     cex.lab=1, cex.main=1.4, cex=1.2, xaxt='n', yaxt='n')
 axis(2, at=c(-6, -3, 0, 3, 6), cex.axis=0.8)
 axis(1, cex.axis=0.8)
 
 nonAdapt_f3_AA <- f3_AA_plasticity[which(
-    (f3_AA_plasticity$log2FoldChange_AAAAvsHHAA > 0 & f3_AA_plasticity$log2FoldChange_HHHHvsAAAA < 0) | 
+    (f3_AA_plasticity$log2FoldChange_AAAAvsHHAA > 0 & f3_AA_plasticity$log2FoldChange_HHHHvsAAAA < 0) |
     (f3_AA_plasticity$log2FoldChange_AAAAvsHHAA < 0 & f3_AA_plasticity$log2FoldChange_HHHHvsAAAA > 0)),]
 points(x= nonAdapt_f3_AA$log2FoldChange_HHHHvsAAAA, y=nonAdapt_f3_AA$log2FoldChange_AAAAvsHHAA,
     col=alpha("black", 0.4), bg=alpha("gray86", 1), pch=21, cex=1.2)
@@ -488,12 +488,12 @@ Adapt_f3_AA <- f3_AA_plasticity[which(
 abline(0,1, col="gray24", lty=2, lwd=2)
 abline(h=0, col="gray24", lty=1, lwd=1)
 abline(v=0, col="gray24", lty=1, lwd=1)
-abline(lm(f3_AA_plasticity$log2FoldChange_AAAAvsHHAA~ f3_AA_plasticity$log2FoldChange_HHHHvsAAAA), col="firebrick3", 
+abline(lm(f3_AA_plasticity$log2FoldChange_AAAAvsHHAA~ f3_AA_plasticity$log2FoldChange_HHHHvsAAAA), col="firebrick3",
     lwd=1.5)
 
 #summary(lm(f3_AA_plasticity$log2FoldChange_AAAAvsHHAA~ f3_AA_plasticity$log2FoldChange_HHHHvsAAAA))
 
-corval <- round(cor.test(f3_AA_plasticity$log2FoldChange_HHHHvsAAAA,f3_AA_plasticity$log2FoldChange_AAAAvsHHAA, 
+corval <- round(cor.test(f3_AA_plasticity$log2FoldChange_HHHHvsAAAA,f3_AA_plasticity$log2FoldChange_AAAAvsHHAA,
     method="pearson")$estimate, 2)
 text(x=-5, y=4, bquote(rho == .(corval)), cex=1.2)
 
@@ -541,25 +541,25 @@ Adapt_f1_HH <- f1_HH_plasticity[which(
 abline(0,1, col="gray24", lty=2, lwd=2)
 abline(h=0, col="gray24", lty=1, lwd=1)
 abline(v=0, col="gray24", lty=1, lwd=1)
-abline(lm(f1_HH_plasticity$log2FoldChange_HHHHvsAAHH~ f1_HH_plasticity$log2FoldChange_HHHHvsAAAA), 
+abline(lm(f1_HH_plasticity$log2FoldChange_HHHHvsAAHH~ f1_HH_plasticity$log2FoldChange_HHHHvsAAAA),
     col="firebrick3", lwd=1.5)
 
-corval <- round(cor.test(f1_HH_plasticity$log2FoldChange_HHHHvsAAAA,f1_HH_plasticity$log2FoldChange_HHHHvsAAHH, 
+corval <- round(cor.test(f1_HH_plasticity$log2FoldChange_HHHHvsAAAA,f1_HH_plasticity$log2FoldChange_HHHHvsAAHH,
     method="pearson")$estimate, 2)
 text(x=-5, y=4, bquote(rho == .(corval)), cex=1.2)
 
 #### HH F2
 
 plot(x= f2_HH_plasticity$log2FoldChange_HHHHvsAAAA, y=f2_HH_plasticity$log2FoldChange_HHHHvsAAHH,
-    ylab="", 
+    ylab="",
     xlab= "",
-    col=alpha("black", 0.4), bg=alpha("gray38", 1), pch=21, 
+    col=alpha("black", 0.4), bg=alpha("gray38", 1), pch=21,
     ylim=c(-6.5, 6.5), xlim=c(-9, 9),
     cex.lab=1, cex.main=1.4, cex=1.2, xaxt='n', yaxt='n')
 axis(2, at=c(-6, -3, 0, 3, 6), cex.axis=0.8)
 
 nonAdapt_f2_HH <- f2_HH_plasticity[which(
-    (f2_HH_plasticity$log2FoldChange_HHHHvsAAHH > 0 & f2_HH_plasticity$log2FoldChange_HHHHvsAAAA < 0) | 
+    (f2_HH_plasticity$log2FoldChange_HHHHvsAAHH > 0 & f2_HH_plasticity$log2FoldChange_HHHHvsAAAA < 0) |
     (f2_HH_plasticity$log2FoldChange_HHHHvsAAHH < 0 & f2_HH_plasticity$log2FoldChange_HHHHvsAAAA > 0)),]
 points(x= nonAdapt_f2_HH$log2FoldChange_HHHHvsAAAA, y=nonAdapt_f2_HH$log2FoldChange_HHHHvsAAHH,
     col=alpha("black", 0.4), bg=alpha("gray86", 1), pch=21, cex=1.2)
@@ -570,10 +570,10 @@ Adapt_f2_HH <- f2_HH_plasticity[which(
 abline(0,1, col="gray24", lty=2, lwd=2)
 abline(h=0, col="gray24", lty=1, lwd=1)
 abline(v=0, col="gray24", lty=1, lwd=1)
-abline(lm(f2_HH_plasticity$log2FoldChange_HHHHvsAAHH ~ f2_HH_plasticity$log2FoldChange_HHHHvsAAAA), 
+abline(lm(f2_HH_plasticity$log2FoldChange_HHHHvsAAHH ~ f2_HH_plasticity$log2FoldChange_HHHHvsAAAA),
     col="firebrick3", lwd=1.5)
 
-corval <- round(cor.test(f2_HH_plasticity$log2FoldChange_HHHHvsAAAA,f2_HH_plasticity$log2FoldChange_HHHHvsAAHH, 
+corval <- round(cor.test(f2_HH_plasticity$log2FoldChange_HHHHvsAAAA,f2_HH_plasticity$log2FoldChange_HHHHvsAAHH,
     method="pearson")$estimate, 2)
 text(x=-5, y=4, bquote(rho == .(corval)), cex=1.2)
 
@@ -588,16 +588,16 @@ mtext(text = "Plastic change in expression\nlog2 fold change: GH_in_AM/GH",
 #### HH F3
 
 plot(x= f3_HH_plasticity$log2FoldChange_HHHHvsAAAA, y=f3_HH_plasticity$log2FoldChange_HHHHvsAAHH,
-    ylab="", 
+    ylab="",
     xlab= "",
-    col=alpha("black", 0.4), bg=alpha("gray38", 1), pch=21, 
+    col=alpha("black", 0.4), bg=alpha("gray38", 1), pch=21,
     ylim=c(-6.5, 6.5), xlim=c(-9, 9),
     cex.lab=1, cex.main=1.4, cex=1.2, xaxt='n', yaxt='n')
 axis(2, at=c(-6, -3, 0, 3, 6), cex.axis=0.8)
 axis(1, cex.axis=0.8)
 
 nonAdapt_f3_HH <- f3_HH_plasticity[which(
-    (f3_HH_plasticity$log2FoldChange_HHHHvsAAHH > 0 & f3_HH_plasticity$log2FoldChange_HHHHvsAAAA < 0) | 
+    (f3_HH_plasticity$log2FoldChange_HHHHvsAAHH > 0 & f3_HH_plasticity$log2FoldChange_HHHHvsAAAA < 0) |
     (f3_HH_plasticity$log2FoldChange_HHHHvsAAHH < 0 & f3_HH_plasticity$log2FoldChange_HHHHvsAAAA > 0)),]
 points(x= nonAdapt_f3_HH$log2FoldChange_HHHHvsAAAA, y=nonAdapt_f3_HH$log2FoldChange_HHHHvsAAHH,
     col=alpha("black", 0.4), bg=alpha("gray86", 1), pch=21, cex=1.2)
@@ -608,11 +608,11 @@ Adapt_f3_HH <- f3_HH_plasticity[which(
 abline(0,1, col="gray24", lty=2, lwd=2)
 abline(h=0, col="gray24", lty=1, lwd=1)
 abline(v=0, col="gray24", lty=1, lwd=1)
-abline(lm(f3_HH_plasticity$log2FoldChange_HHHHvsAAHH ~ f3_HH_plasticity$log2FoldChange_HHHHvsAAAA), 
+abline(lm(f3_HH_plasticity$log2FoldChange_HHHHvsAAHH ~ f3_HH_plasticity$log2FoldChange_HHHHvsAAAA),
     col="firebrick3", lwd=1.5)
 
 
-corval <- round(cor.test(f3_HH_plasticity$log2FoldChange_HHHHvsAAAA,f3_HH_plasticity$log2FoldChange_HHHHvsAAHH, 
+corval <- round(cor.test(f3_HH_plasticity$log2FoldChange_HHHHvsAAAA,f3_HH_plasticity$log2FoldChange_HHHHvsAAHH,
     method="pearson")$estimate, 2)
 text(x=-5, y=4, bquote(rho == .(corval)), cex=1.2)
 
@@ -675,13 +675,13 @@ prop.test(c(nrow(Adapt_f3_AA),nrow(Adapt_f1_AA)),
 #
 ####
 
-write.table(data.frame(x=row.names(as.data.frame(res_HHHHvsAAAA_f1)), y=-log10(as.data.frame(res_HHHHvsAAAA_f1)[,5])), 
+write.table(data.frame(x=row.names(as.data.frame(res_HHHHvsAAAA_f1)), y=-log10(as.data.frame(res_HHHHvsAAAA_f1)[,5])),
     file="~/reciprocal_t/analysis/GO_enrich/dge_f1.txt",
     sep=",", quote=FALSE, col.names=F, row.names=F)
-write.table(data.frame(x=row.names(as.data.frame(res_HHHHvsAAAA_f2)), y=-log10(as.data.frame(res_HHHHvsAAAA_f2)[,5])), 
+write.table(data.frame(x=row.names(as.data.frame(res_HHHHvsAAAA_f2)), y=-log10(as.data.frame(res_HHHHvsAAAA_f2)[,5])),
     file="~/reciprocal_t/analysis/GO_enrich/dge_f2.txt",
     sep=",", quote=FALSE, col.names=F, row.names=F)
-write.table(data.frame(x=row.names(as.data.frame(res_HHHHvsAAAA_f3)), y=-log10(as.data.frame(res_HHHHvsAAAA_f3)[,5])), 
+write.table(data.frame(x=row.names(as.data.frame(res_HHHHvsAAAA_f3)), y=-log10(as.data.frame(res_HHHHvsAAAA_f3)[,5])),
     file="~/reciprocal_t/analysis/GO_enrich/dge_f3.txt",
     sep=",", quote=FALSE, col.names=F, row.names=F)
 
@@ -714,9 +714,9 @@ par(mgp = c(1.5, 0.3, 0))
 x <- mean.out$HHHH_F1_mean - mean.out$AAAA_F1_mean
 y <- mean.out$HHAA_F1_mean - mean.out$AAAA_F1_mean
 plot(x =x,
-    y = y, 
-    col=alpha("black", 0.4), bg=alpha("gray38", 1), pch=21, 
-    ylim=c(-0.85,0.6), xlim=c(-.8, .8),
+    y = y,
+    col=alpha("black", 0.4), bg=alpha("gray38", 1), pch=21,
+    ylim=c(-0.85,0.75), xlim=c(-.8, .85),
     xlab="",
     ylab="",
     cex.lab=1, cex.main=1.4, cex=1.2, xaxt='n', yaxt='n')
@@ -741,9 +741,9 @@ y <- mean.out$HHAA_F2_mean - mean.out$AAAA_F2_mean
 #summary(lm(y~x))
 
 plot(x = x,
-    y = y, 
-    col=alpha("black", 0.4), bg=alpha("gray38", 1), pch=21, 
-    ylim=c(-0.85,0.6), xlim=c(-.8, .8),
+    y = y,
+    col=alpha("black", 0.4), bg=alpha("gray38", 1), pch=21,
+    ylim=c(-0.85,0.75), xlim=c(-.8, .85),
     xlab="",
     ylab="",
     cex.lab=1, cex.main=1.4, cex=1.2, xaxt='n', yaxt='n')
@@ -772,9 +772,9 @@ mtext(text = "Change in AM frequency due to treatment:\n(AM in GH) - AM",
 x <- mean.out$HHHH_F3_mean - mean.out$AAAA_F3_mean
 y <- mean.out$HHAA_F3_mean - mean.out$AAAA_F3_mean
 plot(x = x,
-    y = y, 
-    col=alpha("black", 0.4), bg=alpha("gray38", 1), pch=21, 
-    ylim=c(-0.85,0.6), xlim=c(-.8, .8),
+    y = y,
+    col=alpha("black", 0.4), bg=alpha("gray38", 1), pch=21,
+    ylim=c(-0.85,0.75), xlim=c(-.8, .85),
     xlab="",
     ylab="",
     cex.lab=1, cex.main=1.4, cex=1.2, xaxt='n', yaxt='n')
@@ -821,9 +821,9 @@ par(mgp = c(1.5, 0.3, 0))
 x <- mean.out$AAAA_F1_mean - mean.out$HHHH_F1_mean
 y <- mean.out$AAHH_F1_mean - mean.out$HHHH_F1_mean
 plot(x =x,
-    y = y, 
-    col=alpha("black", 0.4), bg=alpha("gray38", 1), pch=21, 
-    ylim=c(-0.85,0.6), xlim=c(-.8, .8),
+    y = y,
+    col=alpha("black", 0.4), bg=alpha("gray38", 1), pch=21,
+    ylim=c(-0.85,0.75), xlim=c(-.8, .85),
     xlab="",
     ylab="",
     cex.lab=1, cex.main=1.4, cex=1.2, xaxt='n', yaxt='n')
@@ -848,9 +848,9 @@ text(x=0.39, y=-0.6, bquote(rho == .(corval)), cex=1.2)
 x <- mean.out$AAAA_F2_mean - mean.out$HHHH_F2_mean
 y <- mean.out$AAHH_F2_mean - mean.out$HHHH_F2_mean
 plot(x = x,
-    y = y, 
-    col=alpha("black", 0.4), bg=alpha("gray38", 1), pch=21, 
-    ylim=c(-0.85,0.6), xlim=c(-.8, .8),
+    y = y,
+    col=alpha("black", 0.4), bg=alpha("gray38", 1), pch=21,
+    ylim=c(-0.85,0.75), xlim=c(-.8, .85),
     xlab="",
     ylab="",
     cex.lab=1, cex.main=1.4, cex=1.2, xaxt='n', yaxt='n')
@@ -879,9 +879,9 @@ mtext(text = "Change in GH frequency due to treatment:\n(GH in AM) - GH",
 x <- mean.out$AAAA_F3_mean - mean.out$HHHH_F3_mean
 y <- mean.out$AAHH_F3_mean - mean.out$HHHH_F3_mean
 plot(x = x,
-    y = y, 
-    col=alpha("black", 0.4), bg=alpha("gray38", 1), pch=21, 
-    ylim=c(-0.85,0.6), xlim=c(-.8, .8),
+    y = y,
+    col=alpha("black", 0.4), bg=alpha("gray38", 1), pch=21,
+    ylim=c(-0.85,0.75), xlim=c(-.8, .85),
     xlab="",
     ylab="",
     cex.lab=1, cex.main=1.4, cex=1.2, xaxt='n', yaxt='n')
@@ -1043,5 +1043,3 @@ summary(lm((f3$pvalue) ~ (f3$pval_f3)))
 # slope = 0.0036867
 # rsq = 0.001542
 dev.off()
-
-
