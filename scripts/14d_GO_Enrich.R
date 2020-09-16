@@ -23,7 +23,7 @@ df_all <-
   group_by(gene) %>%
   dplyr::summarise(mean_all = min(mean_gen, na.rm=TRUE))
 
-d_f1$mean_val <-
+d_f1 <-
   df %>%
   group_by(gene) %>%
   dplyr::summarise(f1_pval = min(pval_f1, na.rm=TRUE))
@@ -41,14 +41,6 @@ d_f3 <-
 
 genes <- unique(df$gene)
 
-# also need a file that indicates the go terms for each gene, where go terms are separated by commas
-ofInterest <- c()
-for(i in 1:length(genes)){
-    a <- sig[which(sig$chr == genes[i]),]
-    if(sum(a$sig_all) > 0){
-        ofInterest[i] <- 1
-    } else{ofInterest[i] <- 0}
-}
 
 write.table(data.frame(
     x=df_all$gene, 
@@ -134,11 +126,11 @@ gomwuStats(input, goDatabase, goAnnotations, goDivision,
    Alternative="g" # by default the MWU test is two-tailed; specify "g" or "l" of you want to test for "greater" or "less" instead.
 )
 
-png("~/reciprocal_t/figures/snp_F1_GO.png",width = 7, height = 14, res=300, units="in")
+pdf("~/reciprocal_t/figures/snp_F1_GO.pdf",width = 10, height = 8)
 
 results=gomwuPlot(input,goAnnotations,goDivision,
     absValue=cutoff_snpAll,
-    level1=0.1, # FDR threshold for plotting. Specify level1=1 to plot all GO categories 
+    level1=0.05, # FDR threshold for plotting. Specify level1=1 to plot all GO categories 
     level2=0.05, # FDR cutoff to print in regular (not italic) font.
     level3=0.01,
     txtsize=1.2,    
@@ -147,7 +139,7 @@ results=gomwuPlot(input,goAnnotations,goDivision,
 
 dev.off()
 
-write.table(file="~/reciprocal_t/analysis/GO_enrich/snp_F1_GO_RESULTS", sep="\t", quote=FALSE, results)
+write.table(file="~/reciprocal_t/analysis/GO_enrich/snp_F1_GO_RESULTS-1", sep="\t", quote=FALSE, results)
 
 
 
@@ -304,7 +296,7 @@ gomwuStats(input, goDatabase, goAnnotations, goDivision,
    Alternative="g" # by default the MWU test is two-tailed; specify "g" or "l" of you want to test for "greater" or "less" instead.
 )
 
-png("~/reciprocal_t/figures/dge_F1_GO.png",width = 7, height = 14, res=300, units="in")
+pdf("~/reciprocal_t/figures/dge_F1_GO.pdf",width = 10, height = 8)
 
 results=gomwuPlot(input,goAnnotations,goDivision,
     absValue=cutoff_dgeF1,
@@ -402,7 +394,7 @@ names(dfl) <- sp_nm
 
 for(i in 1:length(sp_nm)){
     tmp.out <- dfl[[sp_nm[i]]][which(dfl[[sp_nm[i]]]$p.adj < 0.05),]
-    write.table(file=paste("~/reciprocal_t/analysis/GO_enrich/", sp_nm[i], "_GO_RESULTS.txt", sep=""), 
+    write.table(file=paste("~/reciprocal_t/analysis/GO_enrich/a_", sp_nm[i], "_GO_RESULTS.txt", sep=""), 
         sep="\t", quote=FALSE, row.names=F,
         cbind(tmp.out[,c(5,6)], tmp.out[,c(2,7)]))
 }
