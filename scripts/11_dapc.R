@@ -131,7 +131,6 @@ mod1 <- MCMCglmm(LD1~Line+Line:home, random=~rep, prior= prior, data=dpc,nitt=75
 summary(mod1)
 posterior.mode(mod1$VCV)
 
-# calculating difference in magnitudes of orii:away and orio:away using sampled sets of parameters:
 awayDelta=abs(mod1$Sol[,"LineHH:home"])-abs(mod1$Sol[,"LineAA:home"])
 
 # 95% credible interval:
@@ -520,8 +519,8 @@ posterior.mode(mod1$VCV)
 HPDinterval(mod1$Sol)
 
 # calculating difference in magnitudes of orii:away and orio:away using sampled sets of parameters:
-#awayDelta=abs(mod1$Sol[,"LineAA:home"])-abs(mod1$Sol[,"LineHH:home"])
-awayDelta=abs(mod1$Sol[,"LineHH:home"])-abs(mod1$Sol[,"LineAA:home"])
+awayDelta=abs(mod1$Sol[,"LineAA:home"])-abs(mod1$Sol[,"LineHH:home"])
+#awayDelta=abs(mod1$Sol[,"LineHH:home"])-abs(mod1$Sol[,"LineAA:home"])
 
 # 95% credible interval:
 HPDinterval(awayDelta)
@@ -530,7 +529,7 @@ if (is.na(table(awayDelta<0)[2])) {
   cat("p <",signif(1/length(awayDelta),1))
     } else { 
     cat("p =",signif(table(awayDelta<0)[2]/length(awayDelta),2)) 
-  } # 0.97
+  } # 0.025
 
 ###
 ### save loadings
@@ -709,8 +708,8 @@ posterior.mode(mod1$VCV)
 HPDinterval(mod1$Sol)
 
 # calculating difference in magnitudes of orii:away and orio:away using sampled sets of parameters:
-#awayDelta=abs(mod1$Sol[,"LineAA:home"])-abs(mod1$Sol[,"LineHH:home"])
-awayDelta=abs(mod1$Sol[,"LineHH:home"])-abs(mod1$Sol[,"LineAA:home"])
+awayDelta=abs(mod1$Sol[,"LineAA:home"])-abs(mod1$Sol[,"LineHH:home"])
+#awayDelta=abs(mod1$Sol[,"LineHH:home"])-abs(mod1$Sol[,"LineAA:home"])
 
 # 95% credible interval:
 HPDinterval(awayDelta)
@@ -719,7 +718,7 @@ if (is.na(table(awayDelta<0)[2])) {
   cat("p <",signif(1/length(awayDelta),1))
     } else {
     cat("p =",signif(table(awayDelta<0)[2]/length(awayDelta),2))
-  } # 0.81
+  } # 0.19
 
 ###
 ### save loadings

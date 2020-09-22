@@ -139,7 +139,7 @@ results=gomwuPlot(input,goAnnotations,goDivision,
 
 dev.off()
 
-write.table(file="~/reciprocal_t/analysis/GO_enrich/snp_F1_GO_RESULTS-1", sep="\t", quote=FALSE, results)
+write.table(file="~/reciprocal_t/analysis/GO_enrich/snp_F1_GO_RESULTS", sep="\t", quote=FALSE, results)
 
 
 
