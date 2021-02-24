@@ -46,11 +46,11 @@ Below are scripts to run the full analysis for the manuscript. A short descripti
 
 ## Figures:
 
-
-Fig. 2: 
-Fig. 3: combination of `Fig_pca.R` and `14d_GO_Enrich.R`
-Fig. 4: `11_dapc.R` 
-Fig. 5: `10b_popoolation_pi.R`  
+Fig. 2: combination of `Fig_pca.R` and `14d_GO_Enrich.R`  
+Fig. 3: `plasticity_analysis.R`   
+Fig. 4: `11_dapc.R`    
+Fig. 5: `10b_popoolation_pi.R`
+Fig. 6: `15_Phenotype_data_analysis.R`
 Fig. S1: `Fig_S1.R`  
 
 Supp figs: `Fig_pca.R`
