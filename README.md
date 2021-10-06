@@ -47,8 +47,8 @@ Below are scripts to run the full analysis for the manuscript. A short descripti
 ## Figures:
 
 
-Fig. 2: 
-Fig. 3: combination of `Fig_pca.R` and `14d_GO_Enrich.R`
+Fig. 2:   
+Fig. 3: combination of `Fig_pca.R` and `14d_GO_Enrich.R`  
 Fig. 4: `11_dapc.R` 
 Fig. 5: `10b_popoolation_pi.R`  
 Fig. S1: `Fig_S1.R`  
