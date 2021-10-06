@@ -46,11 +46,21 @@ Below are scripts to run the full analysis for the manuscript. A short descripti
 
 ## Figures:
 
-Fig. 2: combination of `Fig_pca.R` and `14d_GO_Enrich.R`  
-Fig. 3: `plasticity_analysis.R`   
-Fig. 4: `11_dapc.R`    
-Fig. 5: `10b_popoolation_pi.R`
-Fig. 6: `15_Phenotype_data_analysis.R`
-Fig. S1: `Fig_S1.R`  
+- Fig. 2: combination of `Fig_pca.R` and `14d_GO_Enrich.R`  
+- Fig. 3: `plasticity_analysis.R`   
+- Fig. 4: `11_dapc.R`    
+- Fig. 5: `10b_popoolation_pi.R`
+- Fig. 6: `15_Phenotype_data_analysis.R`
 
-Supp figs: `Fig_pca.R`
+Supplemental:
+- Fig. S1: `Fig_S1.R`  
+- Fig. S2: `indiv_gene_fig.md`  
+- Fig. S3: `indiv_gene_fig.md`  
+- Fig. S4: `13_scatter_plot.R`  
+- Fig. S5: `snp_validation.md`  
+- Fig. S6: `13_scatter_plot.R`  
+- Fig. S7: histogram of cov
+- Fig. S8: cmh venn
+- Fig. S9: GO dendro
+- Fig. S10: Go dendro
+
