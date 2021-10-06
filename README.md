@@ -59,7 +59,7 @@ Supplemental:
 - Fig. S4: `13_scatter_plot.R`  
 - Fig. S5: `snp_validation.md`  
 - Fig. S6: `13_scatter_plot.R`  
-- Fig. S7: histogram of cov
+- Fig. S7: `09_filter_variants.R`  
 - Fig. S8: `venn.R`  
 - Fig. S9: `14d_GO_Enrich.R`  
 - Fig. S10: `14d_GO_Enrich.R`  

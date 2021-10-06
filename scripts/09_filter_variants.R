@@ -128,3 +128,18 @@ write.table(file="~/reciprocal_t/analysis/filtered_variants.txt", dat4, sep="\t"
 
 write.table(file="~/reciprocal_t/analysis/filtered_allele_freqs.txt", af.out, sep="\t",
               row.names=FALSE, quote=FALSE)
+
+
+######################
+# plot coverage figure:
+######################
+
+
+dfCov <- as.numeric((str_split_fixed(dat4[,5] , ":", n=6))[,2])/48
+
+mean(dfCov)
+median(dfCov)
+
+hist(dfCov, col="grey45", breaks=50, xlab=c("mean coverage per locus"))
+
+abline(v=mean(dfCov), col="firebrick3", lwd=2)
