@@ -93,7 +93,7 @@ scale_x_discrete(labels=c("AAAA" = "AM in AM",
  #  stat_summary(geom = 'text', label = letters[1:12], fun.y = (max), position = position_dodge(width=0.95))
     geom_text(aes(x=comb, y=Heterozygosity+0.0002,
         label =c("AB", "AB", "AB", "AB", "A", "A", "AB", "ABC", "BC","AB", "AB", "C"),
-        fill = NULL), data = totals,
+        fill = NULL), data = het_mean,
         position = position_dodge(width=0.95), size=4)+
      theme(axis.text.x = element_text(angle=45, hjust=1, size=16),
         axis.title.y = element_text( size=14))
@@ -191,6 +191,7 @@ AAHH_r4 <- AAHH_r4[!is.na(AAHH_r4$pi.AAHH_r4),]
 all.HHAA <- merge(merge(merge(HHAA_r1, HHAA_r2, by="snp"),HHAA_r3, by="snp"),HHAA_r4, by="snp")
 all.AAHH <- merge(merge(merge(AAHH_r1,AAHH_r2, by="snp"),AAHH_r3, by="snp"),AAHH_r4, by="snp")
 
+#all.m <- merge(merge(merge(all.HHAA, all.AAHH, by="snp", all=T),all.AAAA, by="snp", all=T), all.HHHH, by="snp", all=T)
 all.m <- merge(all.HHAA, all.AAHH, by="snp")
 
 nrow(all.m)
@@ -241,6 +242,7 @@ deltapi <-
   dplyr::summarise(mean_pi = mean(value, ignore.na=TRUE))
 
 # remember that dat contains the overlaps.
+    # so could merge deltapi with dat to see significance
 
 overlap <- (merge(x=deltapi, y=dat, by.x="snp", by.y="pi_snp", all.x=TRUE))
 # messy, columns that are carried over. remove them
@@ -268,6 +270,7 @@ c <- ggplot(deduped.data, aes(x=gp, y=mean_pi, color=sig, group=sig)) +
      xlab("")+
      ylab(expression(paste("Mean change in ",pi))) +
      theme(axis.title.y=element_text(size=14))
+    # ylab(expression(paste("Mean loss of  ",pi, "\n(100 bp windows")))
 
 ggsave("~/reciprocal_t/figures/delta_pi.png",
         plot =ggarrange(pb, c, widths = c(2,1.3), ncol=2, nrow=1, labels="AUTO"), 
@@ -294,3 +297,163 @@ wilcox.test(win.hhaa$mean_pi[which(win.hhaa$sig == TRUE)],
               conf.int = TRUE, alternative= "less")
 
 p.adjust(c(0.002297, 0.0534), method="bonferroni")
+
+############################################################################################################
+############################################################################################################
+# do AMam VS GHgh show changes in pi?
+############################################################################################################
+############################################################################################################
+
+
+################
+###
+### delta pi. to look for enrichment
+###
+################
+
+# use list of dfs d
+
+# merge the data sets.
+# the look for regions with drops.
+
+HHHH_r1 <- merge(d[["AAAA_F1_REP1"]], d[["HHHH_F1_REP1"]], by="snp")
+HHHH_r2 <- merge(d[["AAAA_F1_REP2"]], d[["HHHH_F1_REP2"]], by="snp")
+HHHH_r3 <- merge(d[["AAAA_F1_REP3"]], d[["HHHH_F1_REP3"]], by="snp")
+HHHH_r4 <- merge(d[["AAAA_F1_REP4"]], d[["HHHH_F1_REP4"]], by="snp")
+
+HHHH_r1$pi.HHHH_r1 <- HHHH_r1$pi.y-HHHH_r1$pi.x
+HHHH_r2$pi.HHHH_r2 <- HHHH_r2$pi.y-HHHH_r2$pi.x
+HHHH_r3$pi.HHHH_r3 <- HHHH_r3$pi.y-HHHH_r3$pi.x
+HHHH_r4$pi.HHHH_r4 <- HHHH_r4$pi.y-HHHH_r4$pi.x
+
+HHHH_r1 <- HHHH_r1[!is.na(HHHH_r1$pi.HHHH_r1),]
+HHHH_r2 <- HHHH_r2[!is.na(HHHH_r2$pi.HHHH_r2),]
+HHHH_r3 <- HHHH_r3[!is.na(HHHH_r3$pi.HHHH_r3),]
+HHHH_r4 <- HHHH_r4[!is.na(HHHH_r4$pi.HHHH_r4),]
+
+# there are dup cols in these merges, but doesn't matter. ignore. not worth fixing
+all.HHHH <- merge(merge(merge(HHHH_r1, HHHH_r2, by="snp"),HHHH_r3, by="snp"),HHHH_r4, by="snp")
+
+#all.m <- merge(merge(merge(all.HHAA, all.AAHH, by="snp", all=T),all.AAAA, by="snp", all=T), all.HHHH, by="snp", all=T)
+
+nrow(all.HHHH)
+# [1] 11648
+
+all.m <- merge(all.HHAA, all.AAHH, by="snp")
+#all.m <- merge(merge(merge(all.HHAA, all.AAHH, by="snp", all=T),all.AAAA, by="snp", all=T), all.HHHH, by="snp", all=T)
+all.combo <- merge(all.m, all.HHHH, by="snp")
+
+nrow(all.combo)
+# 9177
+
+################
+# save output for GO enrichment.
+################
+
+new.dat <- data.frame(
+      snp=all.combo$snp,
+      gene=all.combo$gene.x.x.x,
+      HHHH_r1 = all.combo$pi.HHHH_r1,
+      HHHH_r2 = all.combo$pi.HHHH_r2,
+      HHHH_r3 = all.combo$pi.HHHH_r3,
+      HHHH_r4 = all.combo$pi.HHHH_r4,
+      AAHH_r1 = all.combo$pi.AAHH_r1,
+      AAHH_r2 = all.combo$pi.AAHH_r2,
+      AAHH_r3 = all.combo$pi.AAHH_r3,
+      AAHH_r4 = all.combo$pi.AAHH_r4,
+      HHAA_r1 = all.combo$pi.HHAA_r1,
+      HHAA_r2 = all.combo$pi.HHAA_r2,
+      HHAA_r3 = all.combo$pi.HHAA_r3,
+      HHAA_r4 = all.combo$pi.HHAA_r4)
+
+df.melt <- melt(new.dat, id.vars = c("snp", "gene"))
+df.melt$gp <- substr(df.melt$variable, 1,4)
+
+data <-
+  df.melt %>%
+  group_by(gp, gene) %>%
+  dplyr::summarise(mean_pi = mean(value))
+
+hhhh <- data[which(data$gp == "HHHH"),]
+
+write.table(file="~/reciprocal_t/analysis/GO_enrich/pi_hhhh.txt", hhhh[,c(2,3)], col.names=TRUE,
+    row.names=FALSE, quote=FALSE,sep=",")
+
+
+# window level
+df.melt <- melt(new.dat, id.vars = c("snp", "gene"))
+df.melt$gp <- substr(df.melt$variable, 1,4)
+
+deltapi <-
+  df.melt %>%
+  group_by(gp, snp, gene) %>%
+  dplyr::summarise(mean_pi = mean(value, ignore.na=TRUE))
+
+# remember that dat contains the overlaps.
+  # so could merge deltapi with dat to see significance
+
+overlap <- (merge(x=deltapi, y=dat, by.x="snp", by.y="pi_snp", all.x=TRUE))
+# messy, columns that are carried over. remove them
+clean <- overlap[ , c("snp","gp.x", "gene.x", "mean_pi", "CHR","start", "stop","sig", "snp_start", "snp_stop")]
+
+colnames(clean) <- c("snp","gp", "gene", "mean_pi", "CHR","start", "stop","sig", "snp_start", "snp_stop")
+
+# and if no snp, this means sig=false, bc didn't shift.
+clean$sig[is.na(clean$sig)] <- FALSE
+clean$sig[is.na(clean$sig)] <- FALSE
+
+deduped.data <- clean %>% distinct
+
+deduped.data$gp <- factor(deduped.data$gp, levels = c("HHAA","HHHH", "AAHH"))
+
+c <- ggplot(deduped.data, aes(x=gp, y=mean_pi, color=sig, group=sig)) +
+     stat_summary(fun.data = mean_cl_normal,position=position_dodge(0.5), geom = "errorbar") +
+     stat_summary(fun.data = mean_cl_normal,position=position_dodge(0.5), geom = "point", size=4) +
+     theme_classic() +
+     scale_colour_manual(values = c("gray48", "black"), name = " ", labels = c("Non-adaptive", "Adaptive")) +
+     theme(axis.text.x = element_text(angle=45, hjust=1, size=16),
+        axis.title.y = element_text( size=16)) +
+     scale_x_discrete(labels=c( "HHHH" = "GH in GH",
+                                "HHAA" = "AM in GH",
+                                "AAHH" = "GH in AM")) +
+     xlab("")+
+     ylab(expression(paste("Mean change in ",pi))) +
+     theme(axis.title.y=element_text(size=14)) 
+         # ylab(expression(paste("Mean loss of  ",pi, "\n(100 bp windows")))
+
+#ggsave("~/reciprocal_t/figures/delta_pi.png",
+ #   plot =ggarrange(pb, c, widths = c(2,1.3), ncol=2, nrow=1, labels="AUTO"), 
+ #       width=10, height=4)
+
+write.table(deduped.data, file="~/reciprocal_t/analysis/Fig5_b.txt", row.names=F, quote=F)
+
+ggsave("~/reciprocal_t/figures/delta_pi_gh.pdf",
+    plot =ggarrange(pb,c, widths = c(2,1.3), ncol=2, nrow=1, labels="AUTO"),
+        width=10, height=4)
+
+
+
+
+win.hhhh <- deduped.data[which(deduped.data$gp == "HHHH"),]
+
+wilcox.test(win.hhhh$mean_pi[which(win.hhhh$sig == TRUE)],
+        win.hhhh$mean_pi[which(win.hhhh$sig == FALSE)],
+        conf.int = TRUE, alternative= "less")
+# 0.02177
+
+win.hhaa <- deduped.data[which(deduped.data$gp == "HHAA"),]
+
+wilcox.test(win.hhaa$mean_pi[which(win.hhaa$sig == TRUE)],
+        win.hhaa$mean_pi[which(win.hhaa$sig == FALSE)],
+        conf.int = TRUE, alternative= "less")
+# 0.0534
+
+win.aahh <- deduped.data[which(deduped.data$gp == "AAHH"),]
+
+wilcox.test(win.aahh$mean_pi[which(win.aahh$sig == TRUE)],
+        win.aahh$mean_pi[which(win.aahh$sig == FALSE)],
+        conf.int = TRUE, alternative= "less")
+# 0.002297
+
+p.adjust(c(0.02177, 0.0534,0.002297), method = "bonferroni")
+# [1] 0.065310 0.160200 0.006891
