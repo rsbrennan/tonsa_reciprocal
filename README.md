@@ -1,4 +1,4 @@
-# Acartia tonsa reciprocal transplant
+#Acartia tonsa reciprocal transplant
 
 This repository hold scripts for the analysis of a reciprocal transplant of Acartia tonsa following a ~20 generation selection experiment.  
 
@@ -8,7 +8,11 @@ These RNAseq data were sequenced on 2 lanes of a Novaseq by Novogene. Data were 
 
 Raw sequence data is available at NCBI BioProject PRJNA555881
 
+Gene expression data are included in this repository in `DGE_data/`, both normalized (by librarysize) and not normalized.
+
 All other summaries etc. are included as supplemental files with the manuscript.
+
+Please get in touch about any data issues.
 
 ## Scripts
 
