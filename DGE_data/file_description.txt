@@ -1,0 +1,11 @@
+Sample names are a little confusing.
+
+We used a four letter naming scheme. First 2 letters are the current environment, 2nd two are the line.
+
+AAAA = Ambient in Ambient
+HHAA = Ambient in OWA
+HHHH = OWA in OWA
+AAHH = OWA in Ambient
+
+The rest should be self explanatory for generation and replicate.
+
